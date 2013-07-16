@@ -1,11 +1,11 @@
 '''
 [Narith]
-File:   IOManager.py
+File:   Eth.py
 Author: Saad Talaat
 Date:   15th July 2013
 brief:  Structure to hold Ethernet info
 '''
-
+from Exceptions.Exceptions import *
 class Eth():
 
 	# FLAGS
@@ -29,24 +29,25 @@ class Eth():
 				self.ISSTRING = True
 				self.rawDstSrc()
 			except:
+				if(len(dst) != 6) or (len(src) != 6):
+					raise MacAddrError,"Invalid Source or Desination Address"
+				self.__dst__ = dst
+				self.__src__ = src
 				pass
 
 		# if not then assign them to raw variables
 		# and conduct string initalization
-		self.__dst__ = dst
-		self.__src__ = src
-		self__type__ = t
-		self.srcDstSrc()
+		self.__type__ = t
+		self.strDstSrc()
 
 		self.__initFlags()
 
 
 	def __initFlags(self):
-		if self.__type__ == '\x08\x06':
+		if self.__type__ == '\x80\x06':
 			self.ISARP = True
 		elif self.__type__ == '\x80\x00':
 			self.ISIP = True
-
 
 	def rawDstSrc(self):
 		self.__dst__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__sdst__.split(":")]])
