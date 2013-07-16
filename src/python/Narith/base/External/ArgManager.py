@@ -36,5 +36,5 @@ class ArgManager():
 			if ("-"+o) == opt:
 				return val
 	def printHelp(self):
-		print "usage: narith [options] [flags]\n-h\t: view this output.\n-v\t: verbose mode on.\n-i\t: input file.\n-o\t: output file.\n\n\tBy:\n\t\tSaad Talaat<@Sa3dTalaat>\n\t\tMahmoud Hard<@HardMan179>"
+		print "usage: narith [options] [flags]\n-h\t: view this output.\n-v\t: verbose mode on.\n-i\t: input file.\n-o\t: output file.\n\n\tBy:\n\t\tSaad Talaat<saadtalaat@gmail.com>\n\t\tMahmoud Hard<hard.man179@gmail.com>"
 
