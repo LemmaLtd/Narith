@@ -58,8 +58,8 @@ class IP():
 		self.__ip['dst']	= (( int(bs[16].encode('hex'),16)) << 24) + ((int(bs[17].encode('hex'),16)) << 16) +\
 					  (( int(bs[18].encode('hex'),16)) << 8)  + (int(bs[19].encode('hex'),16))
 
-	# to avoid mandatory memory overloading
-	# string representation done is on command
+		self.formatted()
+
 	def formatted(self):
 		if self.ISSTRING:
 			return self.__sip
@@ -70,18 +70,27 @@ class IP():
 				self.__sip[i] = self.__protocols[v]
 				continue
 			elif(i == 'src') or (i == 'dst'):
-				self.__sip[i] = string((self.__ip[i] >> 24)) + "." +\
-						string((self.__ip[i] >> 16) & 0xff) + "." +\
-						string((self.__ip[i] >> 8 ) & 0xff) + "." +\
-						string((self.__ip[i]) & 0xff)
+				self.__sip[i] = str((self.__ip[i] >> 24)) + "." +\
+						str((self.__ip[i] >> 16) & 0xff) + "." +\
+						str((self.__ip[i] >> 8 ) & 0xff) + "." +\
+						str((self.__ip[i]) & 0xff)
 				continue
 			else:
-				self.__sip[i] = string(v)
+				self.__sip[i] = str(v)
 		self.ISSTRING = True
+		return self.__sip
+
+	def raw(self):
+		return self.__ip
 
 	def getDstSrc(self):
-		if(self.ISSTRING):		
-			return self.__sip['dst'],self.__sip['src']
+		return self.__sip['dst'],self.__sip['src']
 
 	def getRawDstSrc(self):
 		return self.__ip['dst'],self.__ip['src']
+
+	def getProtocol(self):
+		return self.__sip['protocol']
+
+	def getLen(self):
+		return self.__ip['len']
