@@ -12,3 +12,7 @@ class ProtError(Exception):
 class MacAddrError(ProtError):
 
 	pass
+
+class BytesStreamError(ProtError):
+
+	pass
