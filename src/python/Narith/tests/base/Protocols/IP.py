@@ -20,5 +20,13 @@ class IPTest(unittest.TestCase):
 
 	def testFormat(self):
 		assert self.ip.getDstSrc() == ("12.129.210.71","192.168.245.12"), "IP Pair did not match [IP(Test)]"
-		assert self.ip.getProtocol() == 'tcp', "Protocol type did not match [IP(Test)]"
-		assert (self.ip.getLen()) == 48 , "Packet Length did not match [IP(Test)]"
+		assert self.ip.protocol == 'tcp', "Protocol type did not match [IP(Test)]"
+		assert self.ip.len == 48 , "Packet Length did not match [IP(Test)]"
+
+	def testProperties(self):
+		self.assertEqual(self.ip.src,self.ip.getDstSrc()[1])
+		self.ip.src = "188.12.13.4"
+		self.assertEqual(self.ip.src,self.ip.getDstSrc()[1])
+		self.assertEqual(self.ip.dst,self.ip.getDstSrc()[0])
+		self.ip.dst = "128.12.13.4"
+		self.assertEqual(self.ip.dst,self.ip.getDstSrc()[0])
