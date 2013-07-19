@@ -8,8 +8,7 @@ brief: origin python code
 import unittest
 
 #Run tests for now
-from Narith.tests.base.Protocols import IP,Eth
-tests = [ IP.IPTest,Eth.EthTest]
+from Narith.tests.base.Protocols import IP,Eth,tests
 loader = unittest.TestLoader()
 def runTests():
 	suite = unittest.TestSuite()

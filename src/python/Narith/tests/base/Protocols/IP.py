@@ -6,8 +6,10 @@ Date: 18th July 2013
 brief: Structure to hold IP
 '''
 from Narith.base.Protocols.IP import *
+from Narith.tests.base.Protocols.TestDecorator import istest
 import unittest,random
 
+@istest
 class IPTest(unittest.TestCase):
 
 
