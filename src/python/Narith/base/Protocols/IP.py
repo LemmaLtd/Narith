@@ -72,10 +72,16 @@ class IP(object):
 				self.__sip[i] = self.__protocols[v]
 				continue
 			elif ((i == 'src') or (i == 'dst')) and (self.__ip['version'] == 4):
-				self.__sip[i] = str((self.__ip[i] >> 24)) + "." +\
-						str((self.__ip[i] >> 16) & 0xff) + "." +\
-						str((self.__ip[i] >> 8 ) & 0xff) + "." +\
-						str((self.__ip[i]) & 0xff)
+				self.__sip[i]= ""
+
+				for l in range(0,4)[::-1]:
+					self.__sip[i] += str((self.__ip[i] >> l*8) & 0xff) + "."
+				self.__sip[i] = self.__sip[i][:len(self.__sip[i])-1]
+
+#				self.__sip[i] = str((self.__ip[i] >> 24)) + "." +\
+#						str((self.__ip[i] >> 16) & 0xff) + "." +\
+#						str((self.__ip[i] >> 8 ) & 0xff) + "." +\
+#						str((self.__ip[i]) & 0xff)
 				continue
 			else:
 				self.__sip[i] = str(v)
@@ -97,7 +103,7 @@ class IP(object):
 		elif (len(val.split(".")) != 4):
 			raise ValueError, "Malformed value"
 		self.__sip['src'] =  val
-		self.__ip['src'] = "".join([chr(int(j)) for j in val.split(".")]).encode('hex')
+		self.__ip['src'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
 	@property
 	def dst(self):
 		return self.__sip['dst']
@@ -109,7 +115,7 @@ class IP(object):
 		elif (len(val.split(".")) != 4):
 			raise ValueError,"Malformed value"
 		self.__sip['dst'] = val
-		self.__ip['dst'] = "".join([chr(int(j)) for j in val.split(".")]).encode('hex')
+		self.__ip['dst'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
 	
 	@property
 	def protocol(self):
