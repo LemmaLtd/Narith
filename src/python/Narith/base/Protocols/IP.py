@@ -78,10 +78,6 @@ class IP(object):
 					self.__sip[i] += str((self.__ip[i] >> l*8) & 0xff) + "."
 				self.__sip[i] = self.__sip[i][:len(self.__sip[i])-1]
 
-#				self.__sip[i] = str((self.__ip[i] >> 24)) + "." +\
-#						str((self.__ip[i] >> 16) & 0xff) + "." +\
-#						str((self.__ip[i] >> 8 ) & 0xff) + "." +\
-#						str((self.__ip[i]) & 0xff)
 				continue
 			else:
 				self.__sip[i] = str(v)
