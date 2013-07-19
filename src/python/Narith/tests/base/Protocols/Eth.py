@@ -6,8 +6,10 @@ Date: 15th July 2013
 brief: Structure to hold Ethernet info
 '''
 from Narith.base.Protocols.Eth import *
+from Narith.tests.base.Protocols.TestDecorator import istest
 import unittest,random
 
+@istest
 class EthTest(unittest.TestCase):
 
 
@@ -31,10 +33,8 @@ class EthTest(unittest.TestCase):
 	def testType(self):
 		assert self.t == self.eth.__type__,"Types unmatched [Eth(Test)]"
 		if self.t == '\x80\x00':
-			assert self.eth.ISIP,"Invalid Internal type flags [Eth(Test)]"
 			assert self.eth.isIP(),"Invalid Internal type bool function [Eth(Test)]"
 		elif self.t == '\x80\x06':
-			assert self.eth.ISARP,"Invalid Internal type flags [Eth(Test)]"
 			assert self.eth.isARP(),"Invalid Internal type bool function [Eth(Test)]"
 	
 	def testStr(self):

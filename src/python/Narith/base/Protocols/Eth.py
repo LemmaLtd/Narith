@@ -6,17 +6,17 @@ Date:   15th July 2013
 brief:  Structure to hold Ethernet info
 '''
 from Exceptions.Exceptions import *
-class Eth():
+class Eth(object):
 
 	# FLAGS
 	
 	#type of data rep of input
 	ISSTRING = False
 	
-	#packet type flags
-	ISIP = False
-	ISARP = False
-
+	__protocols = {	'\x80\x06' : 'arp',
+			'\x80\x00' : 'ip'
+			}
+		
 	def __init__(self, dst, src, t):
 
 		# Check if in binary stream format or seperated format
@@ -37,17 +37,9 @@ class Eth():
 
 		# if not then assign them to raw variables
 		# and conduct string initalization
+		assert t in self.__protocols.keys(),"Unsupported protocol"
 		self.__type__ = t
 		self.strDstSrc()
-
-		self.__initFlags()
-
-
-	def __initFlags(self):
-		if self.__type__ == '\x80\x06':
-			self.ISARP = True
-		elif self.__type__ == '\x80\x00':
-			self.ISIP = True
 
 	def rawDstSrc(self):
 		self.__dst__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__sdst__.split(":")]])
@@ -76,8 +68,46 @@ class Eth():
 
 	############################
 	# Boolean Packet type checks
-
 	def isIP(self):
-		return self.ISIP
+		return self.__protocols[self.__type__] == 'ip'
 	def isARP(self):
-		return self.ISARP
+		return self.__protocols[self.__type__] == 'arp'
+
+
+	############################
+	# Properties
+	@property
+	def dst(self):
+		return self.__sdst__
+	@dst.setter
+	def dst(self,val):
+		if type(val) != str:
+			raise ValueError,"Malformed Value"
+		elif len(val.split(":")) != 6:
+			raise ValueError,"Malformed Value"
+		self.__sdst__ = val
+		self.__dst__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__sdst__.split(":")]])
+
+	@property
+	def src(self):
+		return self.__ssrc__
+
+	@src.setter
+	def src(self,val):
+		if type(val) != str:
+			raise ValueError,"Malformed Value"
+		elif len(val.split(":")) != 6:
+			raise ValueError, "Malformed Value"
+		self.__ssrc__ = val
+		self.__src__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__ssrc__.split(":")]])
+
+	@property
+	def protocol(self):
+		return self.__protocols[self.__type__]
+	@protocol.setter
+	def protocol(self,value):
+		if( value not in self.__protocols.values()):
+			raise ValueError,"Unsupported protocol"
+		for k,v in self.__protocols.iteritems():
+			if v == value:
+				self.__type__ = k
