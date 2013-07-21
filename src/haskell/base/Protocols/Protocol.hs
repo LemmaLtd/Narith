@@ -19,12 +19,12 @@ module Narith.Protocol (Prot(..),Protocol(..)) where
 -- Prot (a): where a is an exclusive datatype
 -- to each protocol holding its data
 
-data Prot a = Ethernet a | Bytes a
+data Prot a = Ethernet a | IP a | Arp a | Udp a | Tcp a | Bytes a
 
 -- Typeclass of protocols holding function to
 -- protocol structures constructors and data
 -- retrival functions.
 class Protocol a where
-	initProtocol:: a -> Prot b
-	rawProtocol:: a -> Prot b
-	formatProtocol:: a -> Prot b
+	initProtocol:: a -> a
+	rawProtocol:: a ->  a
+	formatProtocol:: a -> a 
