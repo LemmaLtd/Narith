@@ -6,7 +6,8 @@
 
 module Narith.Protocols.Eth () where
 import Narith.Protocol
-
+import Data.ByteString as L
+import Data.List as DL
 -- local datatype holding eth info
 data EthType = EthArp | EthIP | EthNone
 
@@ -14,9 +15,20 @@ data EthType = EthArp | EthIP | EthNone
 data Eth = Eth {
 		 dstMac :: String,
 		 srcMac :: String,
-		 ethType :: EthType }
+		 ethType :: EthType } |
+	   EthRaw{
+		ethRaw :: ByteString
+		}
 
-instance Protocol (Prot a) where
-  initProtocol (Ethernet a) = undefined -- raise exception for now
-  rawProtocol (Ethernet a) = undefined -- raise exception for now..
-  formatProtocol (Ethernet a) = undefined
+ethInit :: L.ByteString -> Eth
+ethInit raw = (Eth dst src (mapType t)) where
+  dst = DL.intercalate ":" $DL.map show $L.unpack $L.take 6 raw
+  src = DL.intercalate ":" $DL.map show $L.unpack $L.take 6 $snd $L.splitAt 6 raw
+  t   = lookup (read (Prelude.concat $DL.map show $L.unpack $L.take 2 $snd $L.splitAt 12 raw) :: Int) ethTypes where
+    ethTypes = [(8000,EthIP),(8006,EthArp)]
+  mapType (Just z) = z
+  mapType Nothing = EthNone
+
+-- here we suppose a is a string
+instance Protocol (Eth) where
+  initProtocol (EthRaw raw) = ethInit raw
