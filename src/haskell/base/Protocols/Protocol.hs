@@ -25,6 +25,5 @@ data Prot a = Ethernet a | IP a | Arp a | Udp a | Tcp a | Bytes a
 -- protocol structures constructors and data
 -- retrival functions.
 class Protocol a where
-	initProtocol:: a -> a
 	rawProtocol:: a ->  a
 	formatProtocol:: a -> a 
