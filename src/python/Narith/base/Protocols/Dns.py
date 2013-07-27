@@ -19,9 +19,9 @@ class Dns(object):
 	(name - type - class - ttl - data len - addr)
 	'''
 
-	__dns = {'id' : None, 'queries': [],'answers':[]}
-	__answers = []
 	def __init__(self,b):
+		self.__dns = {'id' : None, 'queries': [],'answers':[]}
+		self.__answers = []
 		self.__dns['id'] = int(b[:2].encode('hex'),16)
 		self.__dns['flags'] = int(b[2:4].encode('hex'),16)
 		self.__dns['nqs'] = int(b[4:6].encode('hex'),16)
@@ -44,11 +44,9 @@ class Dns(object):
 
 		for i in range(0,self.__dns['ansrr']):
 			self.__dns['answers'].append([])
-			print "For: %d" % self.__dns['ansrr']
 			# Name
 			self.__dns['answers'][i].append(queries[:2])
 			# Type
-			print "Q:",queries.encode('hex')
 			self.__dns['answers'][i].append(int(queries[2:4].encode('hex'),16))
 			# Class
 			self.__dns['answers'][i].append(int(queries[4:6].encode('hex'),16))

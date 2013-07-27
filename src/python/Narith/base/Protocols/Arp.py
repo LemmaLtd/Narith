@@ -16,8 +16,6 @@ class Arp(object):
 	target mac.
 	target ip.
 	'''
-	__arp = { 'htype'  : None }
-	__sarp = {'htype' : None}
 	__htypes = {1 : 'Ethernet'}
 	__ptypes = { 0x800 : 'IP' }
 	__opcodes = {
@@ -25,8 +23,10 @@ class Arp(object):
 			2: 'reply',
 			3: 'request-reserve',
 			4: 'reply-reserve'}
-
 	def __init__(self,y):
+		self.__arp = { 'htype'  : None }
+		self.__sarp = {'htype' : None}
+
 		
 		self.__arp['htype'] = int(y[:2].encode('hex'),16)
 		self.__arp['ptype'] = int(y[2:4].encode('hex'),16)

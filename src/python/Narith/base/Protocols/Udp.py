@@ -12,25 +12,16 @@ import random
 class Udp(object):
 
 	# Raw
-	_udp = dict()
-	_pop = []
 	def __init__(self,b):
+		self._udp = {'src':None}
 		
 		self._udp['src'] = int(b[:2].encode('hex'),16)
 		self._udp['dst'] = int(b[2:4].encode('hex'),16)
 		self._udp['len'] = int(b[4:6].encode('hex'),16)
 		self._udp['checksum'] = int(b[6:8].encode('hex'),16)
-		self._pop = self._udp['src']
-	def getPop(self):
-		return self._pop
-	def getDst(self):
-		return self._udp['dst']
 	###################
 	# Properties
 
-	@property
-	def pop(self):
-		return self._pop
 	@property
 	def src(self):
 		return self._udp['src']

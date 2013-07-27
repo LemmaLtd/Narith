@@ -15,18 +15,19 @@ class IP(object):
 	# Identification, Flags, Fragment Offset, Ttl
 	# Protocol, checksum, Src, Dst
 	# and I like the dictionary more..
-	__ip = {
-		'version'	: None, 
-#		One field is enough to initalize dict.
-		}
-	__sip = {
-		'version'	: None
-		}
-	__protocols = {
-		6		: 'tcp',
-		17		: 'udp'
-		}
-	ISSTRING = False
+	def __init__(self, bs):
+		self.__ip = {
+			'version'	: None, 
+#			One field is enough to initalize dict.
+			}
+		self.__sip = {
+			'version'	: None
+			}
+		self.__protocols = {
+			6		: 'tcp',
+			17		: 'udp'
+			}
+		self.ISSTRING = False
 #		'h-len'		: None,
 #		'dsf'		: None,
 #		'len'		: None,
@@ -39,7 +40,6 @@ class IP(object):
 #		'src'		: None,
 #		'dst'		: None
 
-	def __init__(self, bs):
 		# if inserted bytes less than 20 bytes then its not ip
 		if len(bs) < 20:
 			raise BytesStreamError,"Given bytes array is too short"

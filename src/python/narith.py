@@ -9,7 +9,6 @@ import unittest
 
 #Run tests for now
 from Narith.tests.base.Protocols import IP,Eth,Udp,Dns,Arp,tests
-print tests
 loader = unittest.TestLoader()
 def runTests():
 	suite = unittest.TestSuite()
