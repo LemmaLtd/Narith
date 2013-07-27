@@ -28,7 +28,7 @@ ethInit :: L.ByteString -> Eth
 ethInit raw = (Eth dst src (mapType t)) where
   dst = DL.intercalate ":" $DL.map show $L.unpack $L.take 6 raw
   src = DL.intercalate ":" $DL.map show $L.unpack $L.take 6 $snd $L.splitAt 6 raw
-  t   = lookup (read (Prelude.concat $DL.map show $L.unpack $L.take 2 $snd $L.splitAt 12 raw) :: Int) ethTypes where
+  t   = lookup (read (concat $DL.map show $L.unpack $L.take 2 $snd $L.splitAt 12 raw) :: Int) ethTypes where
     ethTypes = [(0x8000,EthIP),(0x8006,EthArp)]
   mapType (Just z) = z
   mapType Nothing = EthNone
