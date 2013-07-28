@@ -16,8 +16,6 @@ class Arp(object):
 	target mac.
 	target ip.
 	'''
-	__arp = { 'htype'  : None }
-	__sarp = {'htype' : None}
 	__htypes = {1 : 'Ethernet'}
 	__ptypes = { 0x800 : 'IP' }
 	__opcodes = {
@@ -25,8 +23,10 @@ class Arp(object):
 			2: 'reply',
 			3: 'request-reserve',
 			4: 'reply-reserve'}
+	def __init__(self,y):
+		self.__arp = { 'htype'  : None }
+		self.__sarp = {'htype' : None}
 
-	def __init__(self,b):
 		
 		self.__arp['htype'] = int(y[:2].encode('hex'),16)
 		self.__arp['ptype'] = int(y[2:4].encode('hex'),16)
@@ -43,11 +43,21 @@ class Arp(object):
                 self.__sarp['hsize'] = str(self.__arp['hsize'])
                 self.__sarp['psize'] = str(self.__arp['psize'])
                 self.__sarp['opcode'] = self.__opcodes[self.__arp['opcode']]
-                self.__sarp['src_mac'] = ":".join("".join( map(hex, map(ord, self.__arp['src_mac']))).split("0x")[1:])
+                self.__sarp['src_mac'] = map(hex, map(ord, self.__arp['src_mac']))
                 self.__sarp['src_ip'] = ".".join( map(str, map(ord, self.__arp['src_ip'])))
-                self.__sarp['dst_mac'] = ":".join("".join(map(hex,map(ord,self.__arp['dst_mac']))).split("0x")[1:])
+                self.__sarp['dst_mac'] = map(hex,map(ord,self.__arp['dst_mac']))
                 self.__sarp['dst_ip'] = ".".join(map(str,map(ord,self.__arp['dst_ip'])))
 
+		''' Fix string macs '''
+		self.__macFix('src_mac')
+		self.__macFix('dst_mac')
+	def __macFix(self,key):
+		tmp = []
+		for i in self.__sarp[key]:
+			if(len(i) == 3):
+				i = '0x0'+i[2]
+			tmp.append(i)
+		self.__sarp[key] = ":".join("".join(tmp).split("0x")[1:])
 	##########################
 	# Properties
 	@property

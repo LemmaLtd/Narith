@@ -20,4 +20,6 @@ class UdpTest(unittest.TestCase):
 		self.u = None
 
 	def testBoundaries(self):
-		self.assertRaises(ValueError,self.u.src, 'pew pew')
+		assert self.u.src != 0
+		assert self.u.dst != 0
+		assert self.u.len != 0
