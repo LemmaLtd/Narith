@@ -23,7 +23,7 @@ class IOManager():
 		except:
 			print "File %s does not exist" % self.__file_used__
 
-	def Read(self, *args):
+	def read(self, *args):
 		if len(args) > 0:
 			return self.__handle__.read(args[0])
 		else:

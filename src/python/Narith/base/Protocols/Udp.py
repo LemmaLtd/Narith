@@ -8,7 +8,6 @@ brief:  Structure to hold UDP info
 
 ''' so far all reading from bytes,
     shall do classmethods soon '''
-import random
 class Udp(object):
 
 	# Raw
@@ -27,7 +26,7 @@ class Udp(object):
 		return self._udp['src']
 	@src.setter
 	def src(self,val):
-		if (type(val) != int) and ( val > 0xffff) and (val < 0):
+		if (type(val) != int) or ( val > 0xffff) or (val < 0):
 			raise ValueError,"Malformed Value"
 		self._udp['src'] = val
 
@@ -37,7 +36,7 @@ class Udp(object):
 
 	@dst.setter
 	def dst(self,val):
-		if (type(val) != int) and ( val > 0xffff) and (val < 0):
+		if (type(val) != int) or ( val > 0xffff) or (val < 0):
 			raise ValueError,"Malformed Value"
 		self._udp['dst'] = val
 
