@@ -6,7 +6,7 @@ Date: 15th July 2013
 brief: Structure to hold Ethernet info
 '''
 from Narith.base.Protocols.Eth import *
-from Narith.tests.base.Protocols.TestDecorator import istest
+from Narith.tests.TestDecorator import istest
 import unittest,random
 
 @istest

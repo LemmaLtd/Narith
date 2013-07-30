@@ -6,7 +6,7 @@ Date: 27th July 2013
 brief: Structure to hold Dns
 '''
 from Narith.base.Protocols.Dns import *
-from Narith.tests.base.Protocols.TestDecorator import istest
+from Narith.tests.TestDecorator import istest
 import unittest,random
 
 @istest

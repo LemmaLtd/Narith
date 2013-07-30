@@ -5,8 +5,8 @@ Author: Saad Talaat
 Date: 18th July 2013
 brief: Structure to hold IP
 '''
+from Narith.tests.TestDecorator import istest
 from Narith.base.Protocols.IP import *
-from Narith.tests.base.Protocols.TestDecorator import istest
 import unittest,random
 
 @istest
