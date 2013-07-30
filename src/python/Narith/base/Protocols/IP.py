@@ -8,14 +8,16 @@ brief:  Structure to hold IP info
 ''' SUPPORT VERSION 6 '''
 
 from Exceptions.Exceptions import *
+from Narith.base.Packet.Protocol import Protocol
 
-class IP(object):
+class IP(Protocol):
 
 	# Version, Header Length, DSF, Total Length
 	# Identification, Flags, Fragment Offset, Ttl
 	# Protocol, checksum, Src, Dst
 	# and I like the dictionary more..
 	def __init__(self, bs):
+		super(IP, self).__init__()
 		self.__ip = {
 			'version'	: None, 
 #			One field is enough to initalize dict.

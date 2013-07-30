@@ -5,13 +5,15 @@ Author: Saad Talaat
 Date:   19th July 2013
 brief:  Structure to hold UDP info
 '''
+from Narith.base.Packet.Protocol import Protocol
 
 ''' so far all reading from bytes,
     shall do classmethods soon '''
-class Udp(object):
+class Udp(Protocol):
 
 	# Raw
 	def __init__(self,b):
+		super( Udp, self).__init__()
 		self._udp = {'src':None}
 		
 		self._udp['src'] = int(b[:2].encode('hex'),16)
