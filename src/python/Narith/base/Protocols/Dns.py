@@ -9,7 +9,8 @@ brief:  Structure to hold DNS info
 ''' Note to self:
 	register this code in code obfuscation competition
 '''
-class Dns(object):
+from Narith.base.Packet.Protocol import Protocol
+class Dns(Protocol):
 
 	#raw
 	''' 
@@ -20,6 +21,7 @@ class Dns(object):
 	'''
 
 	def __init__(self,b):
+		super( Dns, self).__init__()
 		self.__dns = {'id' : None, 'queries': [],'answers':[]}
 		self.__answers = []
 		self.__dns['id'] = int(b[:2].encode('hex'),16)

@@ -6,7 +6,8 @@ Date:   15th July 2013
 brief:  Structure to hold Ethernet info
 '''
 from Exceptions.Exceptions import *
-class Eth(object):
+from Narith.base.Packet.Protocol import Protocol
+class Eth(Protocol):
 
 	# FLAGS
 	
@@ -20,6 +21,7 @@ class Eth(object):
 	def __init__(self, dst, src, t):
 
 		# Check if in binary stream format or seperated format
+		super( Eth, self).__init__()
 		if(type(dst) == str):
 			try:
 				assert len(dst.split(":")) == 6 

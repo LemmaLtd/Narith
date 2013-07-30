@@ -5,8 +5,9 @@ Author: Saad Talaat
 Date:   28th July 2013
 brief:  Structure to hold Tcp info
 '''
+from Narith.base.Packet.Protocol import Protocol
 
-class Tcp(object):
+class Tcp(Protocol):
 
 	_flags = {
 		#ECN
@@ -22,6 +23,7 @@ class Tcp(object):
 		'fin'  : 0b1,
 		}
 	def __init__(self,b):
+		super( Tcp, self).__init__()
 		self._tcp = dict()
 		
 		self._activeFlags = []
@@ -65,7 +67,6 @@ class Tcp(object):
 	def flags(self):
 		if len(self._activeFlags) != 0:
 			return self._activeFlags
-		print "FLAGS",self._tcp['flags']
 		for k,v in self._flags.iteritems():
 			if (v & self._tcp['flags']) != 0:
 				self._activeFlags.append(k)

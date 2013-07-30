@@ -1,8 +1,13 @@
 '''
 [Narith]
+File	: Arp.py
+Author	: Saad Talaat
+Date	: 19th July 2013
+brief	: Structure to hold ARP
 '''
 
-class Arp(object):
+from Narith.base.Packet.Protocol import Protocol
+class Arp(Protocol):
 
 	'''
 	Fields:
@@ -24,6 +29,7 @@ class Arp(object):
 			3: 'request-reserve',
 			4: 'reply-reserve'}
 	def __init__(self,y):
+		super(Arp, self).__init__()
 		self.__arp = { 'htype'  : None }
 		self.__sarp = {'htype' : None}
 
