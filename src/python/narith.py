@@ -10,6 +10,7 @@ import unittest
 #Run tests for now
 from Narith.tests.base.Protocols import IP,Eth,Udp,Dns,Arp,Tcp
 from Narith.tests.base.Packet import Packet
+from Narith.tests.base.Pcap import Pcap
 from Narith.tests import tests
 loader = unittest.TestLoader()
 def runTests():
