@@ -5,7 +5,7 @@ Author: Saad Talaat
 Date:   15th July 2013
 brief:  Structure to hold Ethernet info
 '''
-from Exceptions.Exceptions import *
+from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
 class Eth(Protocol):
 

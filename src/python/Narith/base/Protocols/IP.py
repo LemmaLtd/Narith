@@ -7,7 +7,7 @@ brief:  Structure to hold IP info
 '''
 ''' SUPPORT VERSION 6 '''
 
-from Exceptions.Exceptions import *
+from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
 
 class IP(Protocol):
