@@ -50,4 +50,6 @@ class Protocol(object):
 	@property
 	def protocol(self):
 		return self
-
+	@property
+	def nextProtocol(self):
+		return None
