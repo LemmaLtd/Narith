@@ -7,7 +7,7 @@ brief:  Libpcap file format
 '''
 import threading,thread,time
 from Narith.base.Exceptions.Exceptions import PcapError, PcapStructureError
-
+from Narith.base.External.IOManager import IOManager
 
 class Pcap(object):
 	''' 
@@ -64,39 +64,6 @@ class Pcap(object):
 		def network(self):
 			return self.__network
 
-	class PcapWorker(threading.Thread):
-		rec = []
-		pac = []
-		__par = None
-		def __init__(self, records, packets, binary,parse):
-			threading.Thread.__init__(self)
-			self.__bin = binary
-			self.__par = parse
-
-		def run(self):
-			if self.__bin == '':
-				return
-			b = self.__bin
-			pr = self.PacketRecord(b[:16],self.__par)
-			b = b[16:]
-			print ".",
-			p = b[:pr.length]
-			self.rec.append(pr)
-			self.pac.append(p)
-
-		class PacketRecord(object):
-			def __init__(self, binary, parse):
-				self.__timestampSec 	= int(parse(binary[:4   ]).encode('hex'),16)
-				self.__timestampMicro	= int(parse(binary[4:8  ]).encode('hex'),16)
-				self.__includedLength	= int(parse(binary[8:12 ]).encode('hex'),16)
-				self.__originalLength	= int(parse(binary[12:16]).encode('hex'),16)
-
-			@property
-			def length(self):
-				return self.__includedLength
-			@property
-			def origLength(self):
-				return self.__originalLength
 
 	class PacketRecord(object):
 		def __init__(self, binary, parse):
@@ -112,35 +79,39 @@ class Pcap(object):
 		def origLength(self):
 			return self.__originalLength
 			
-	def __init__(self, binary):
-		self.__binary = binary
-		self.__global_header =  self.GlobalHeader(binary[:24])
+	def __init__(self, filename=None,binary=None):
 		self.__records = []
 		self.__packets = []
-		'''		
-		b = binary[24:]
-		workers = []
-		count = 0
-		print "Starting threads.."
-		while True:
-			if b == '':
-				break
-			worker = self.PcapWorker(self.__records, self.__packets, b, self.__global_header.parse)
-			worker.start()
-			print ".",
-			b = b[16+worker.rec[len(self.__records)-1].length:]
-			workers.append(worker)
-		'''
-		(self.__packet_headers, self.__packets) = self._parseRecords(binary[24:], self.__global_header.parse)
 
-	def _parseRecords(self, binary,parse):
+		if filename and ( type(filename) is str ) and ( len(filename) < 256):
+			self.__file = IOManager(filename,'r')
+			self.__global_header =  self.GlobalHeader(self.__file.read(24))
+			(self.__packet_headers, self.__packets) = \
+						self._parseFromFile(self.__global_header.parse)
+
+
+		elif binary and (type(binary) is str):
+			self.__binary = binary
+			self.__global_header =  self.GlobalHeader(binary[:24])
+			(self.__packet_headers, self.__packets) = \
+						self._parseFromBin(binary[24:], self.__global_header.parse)
+
+		else:
+			raise ValueError,"Invalid filename length or binary data type"
+	@classmethod
+	def fromBinary(cls, binary):
+		return cls(None,binary)
+
+	@classmethod
+	def fromFile(cls, filename):
+		return cls(filename,None)
+		
+	def _parseFromBin(self, binary,parse):
 		records = []
 		packets = []
 		b = binary
 		count = 0
-		print "LOOPS:", len(b)/60
 		while True:
-			print ".",
 			if b == '':
 				break
 			count +=1
@@ -148,11 +119,27 @@ class Pcap(object):
 			b = b[16:]
 			p = b[:pr.length]
 			b = b[pr.length:]
-			#records.append(pr)
-			#packets.append(p)
+			records.append(pr)
+			packets.append(p)
 		self.__packet_count = count
 		return records,packets
-
+	def _parseFromFile(self, parse):
+		p = "dummy"
+		pdata = None
+		count = 0
+		recs, packs = [],[]
+		while p != None:
+			try:
+				p = self.PacketRecord(self.__file.read(16),parse)
+			except:
+				break
+			if p:
+				pdata = self.__file.read(p.length)
+				recs.append(p)
+				packs.append(pdata)
+				count +=1
+		self.__packet_count = count
+		return recs,packs
 	## getters only
 	@property
 	def records(self):

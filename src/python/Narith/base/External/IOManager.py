@@ -16,7 +16,7 @@ class IOManager():
 	def __init__(self, fname, mode):
 		assert fname != ""
 		self.__file_used__ = fname
-		self.__session_info__ = "%x" % datetime.date.today()
+		self.__session_info__ = "%s" % datetime.date.today()
 		self.__mode__ = mode
 		try:
 			self.__handle__ = file(self.__file_used__, self.__mode__)

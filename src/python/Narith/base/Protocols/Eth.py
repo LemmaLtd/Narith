@@ -7,6 +7,7 @@ brief:  Structure to hold Ethernet info
 '''
 from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
+from Narith.base.Protocols import IP,Arp
 class Eth(Protocol):
 
 	# FLAGS
@@ -14,29 +15,20 @@ class Eth(Protocol):
 	#type of data rep of input
 	ISSTRING = False
 	
-	__protocols = {	'\x80\x06' : 'arp',
-			'\x80\x00' : 'ip'
+	__protocols = {	'\x08\x06' : Arp.Arp,
+			'\x08\x00' : IP.IP
 			}
 		
-	def __init__(self, dst, src, t):
+	def __init__(self, binary):
 
 		# Check if in binary stream format or seperated format
 		super( Eth, self).__init__()
-		if(type(dst) == str):
-			try:
-				assert len(dst.split(":")) == 6 
-				assert len(src.split(":")) == 6
-				self.__sdst__ = dst
-				self.__ssrc__ = src
-				self.ISSTRING = True
-				self.rawDstSrc()
-			except:
-				if(len(dst) != 6) or (len(src) != 6):
-					raise MacAddrError,"Invalid Source or Desination Address"
-				self.__dst__ = dst
-				self.__src__ = src
-				pass
+		if(type(binary) != str):
+			raise ValueError,"Malformed value type"
 
+		self.__dst__ = binary[:6]
+		self.__src__ = binary[6:12]
+		t =binary[12:14]
 		# if not then assign them to raw variables
 		# and conduct string initalization
 		assert t in self.__protocols.keys(),"Unsupported protocol"
@@ -104,12 +96,16 @@ class Eth(Protocol):
 		self.__src__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__ssrc__.split(":")]])
 
 	@property
-	def protocol(self):
+	def nextProtocol(self):
 		return self.__protocols[self.__type__]
-	@protocol.setter
-	def protocol(self,value):
+	@nextProtocol.setter
+	def nextProtocol(self,value):
 		if( value not in self.__protocols.values()):
 			raise ValueError,"Unsupported protocol"
 		for k,v in self.__protocols.iteritems():
 			if v == value:
 				self.__type__ = k
+
+	@property
+	def length(self):
+		return 14
