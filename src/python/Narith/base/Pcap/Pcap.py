@@ -7,7 +7,7 @@ brief:  Libpcap file format
 '''
 import threading,thread,time
 from Narith.base.Exceptions.Exceptions import PcapError, PcapStructureError
-
+from Narith.base.External.IOManager import IOManager
 
 class Pcap(object):
 	''' 
@@ -84,10 +84,7 @@ class Pcap(object):
 		self.__packets = []
 
 		if filename and ( type(filename) is str ) and ( len(filename) < 256):
-			try:
-				self.__file = open(filename,'r')
-			except:
-				raise ValueError,"File does not exist or not readable"
+			self.__file = IOManager(filename,'r')
 			self.__global_header =  self.GlobalHeader(self.__file.read(24))
 			(self.__packet_headers, self.__packets) = \
 						self._parseFromFile(self.__global_header.parse)
