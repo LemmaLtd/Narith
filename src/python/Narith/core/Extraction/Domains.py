@@ -25,11 +25,9 @@ class DomainExtractor(object):
 			if not dns:
 				continue
 			try:
-				q = dns.queries[0][0]
-				a = dns.answers[0][0]
-				#if ("www" in q) and (q not in qa):
-				qa.append(q)
-				#if ("www" in a) and (a not in qa):
+				a = []
+				for answer in dns.answers:
+					a.append([answer[0],answer[len(answer)-1]])
 				qa.append(a)
 			except:
 				pass
@@ -38,9 +36,11 @@ class DomainExtractor(object):
 				
 	def wwwExtract(self):
 		qa = []
-		for domain in self.__domains:
-			if ("www" in domain) and (domain not in qa):
-				qa.append(domain)
+		for domains in self.__domains:
+			for domain in domains:
+				if domain and ("www" in domain[0]) and (domain not in qa) and self._isIP(domain[1]):
+					domip = domain[0],domain[1]
+					qa.append(domip)
 		return qa
 
 	def _hasDns(self, packet):
@@ -50,3 +50,15 @@ class DomainExtractor(object):
 			else:
 				return False
 		return False		
+	def _isIP(self,ip):
+		if type(ip) != str:
+			return False
+		octets = ip.split(".")
+		if len(octets) != 4:
+			return False
+		for octet in octets:
+			try:
+				int(octet)
+			except:
+				return False
+		return True
