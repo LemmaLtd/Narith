@@ -22,7 +22,7 @@ class IPTest(unittest.TestCase):
 
 	def testFormat(self):
 		assert self.ip.getDstSrc() == ("12.129.210.71","192.168.245.12"), "IP Pair did not match [IP(Test)]"
-		assert self.ip.len == 48 , "Packet Length did not match [IP(Test)]"
+		assert self.ip.length == 20 , "Packet Length did not match [IP(Test)]"
 
 	def testProperties(self):
 		self.assertEqual(self.ip.src,self.ip.getDstSrc()[1])
