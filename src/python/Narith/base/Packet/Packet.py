@@ -21,6 +21,7 @@ class Packet(object):
 
 	def next(self):
 		if self.index == 0:
+			self.index = self.__size
 			raise StopIteration
 		self.index = self.index -1
 		return self.getProtocol(self.index)
