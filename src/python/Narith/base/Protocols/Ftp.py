@@ -21,7 +21,7 @@ class Ftp(Protocol):
 				'code':None,
 			    }
 		b.strip("\x0d\x0a")
-
+		self.__length = len(b)
 		#determine first element type
 		# 1 slot? definitely request
 		# 1st slot is integer? response code!
@@ -52,3 +52,6 @@ class Ftp(Protocol):
 	@property
 	def code(self):
 		return self._ftp['code']
+	@property
+	def length(self):
+		return self.__length

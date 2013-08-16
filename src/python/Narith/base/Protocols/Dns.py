@@ -65,7 +65,8 @@ class Dns(Protocol):
 			elif len(queries[12:12+self.__dns['answers'][i][4]]) > 4:
 				self.__dns['answers'][i].append( queries[12:12+self.__dns['answers'][i][4]] )
 			else:
-				raise ValueError,"DNS name empty"
+				#SHOULD DO SOMETHING
+				return
 
 			queries = queries[12+self.__dns['answers'][i][4]:]
 
