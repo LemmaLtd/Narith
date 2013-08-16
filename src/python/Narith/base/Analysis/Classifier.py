@@ -30,3 +30,14 @@ class Classifier(object):
 				parent = prot(p)
 				p = p[parent.length:]
 			self.__packets.append(packet)
+		return self.__packets
+	@property
+	def packets(self):
+		return self.__packets
+	@property
+	def records(self):
+		return self.__records
+	@property
+	def size(self):
+		return len(self.__packets)
+	
