@@ -14,29 +14,20 @@ class Eth(Protocol):
 	#type of data rep of input
 	ISSTRING = False
 	
-	__protocols = {	'\x80\x06' : 'arp',
-			'\x80\x00' : 'ip'
+	__protocols = {	'\x08\x06' : 'arp',
+			'\x08\x00' : 'ip'
 			}
 		
-	def __init__(self, dst, src, t):
+	def __init__(self, binary):
 
 		# Check if in binary stream format or seperated format
 		super( Eth, self).__init__()
-		if(type(dst) == str):
-			try:
-				assert len(dst.split(":")) == 6 
-				assert len(src.split(":")) == 6
-				self.__sdst__ = dst
-				self.__ssrc__ = src
-				self.ISSTRING = True
-				self.rawDstSrc()
-			except:
-				if(len(dst) != 6) or (len(src) != 6):
-					raise MacAddrError,"Invalid Source or Desination Address"
-				self.__dst__ = dst
-				self.__src__ = src
-				pass
+		if(type(binary) != str):
+			raise ValueError,"Malformed value type"
 
+		self.__dst__ = binary[:6]
+		self.__src__ = binary[6:12]
+		t =binary[12:14]
 		# if not then assign them to raw variables
 		# and conduct string initalization
 		assert t in self.__protocols.keys(),"Unsupported protocol"

@@ -15,18 +15,10 @@ class EthTest(unittest.TestCase):
 
 
 	def setUp(self):
-		xstr = ""
-		istr = "012456ABCDEF"
-		istr = random.sample(istr,len(istr))
-		for i in range(0,len(istr)):
-			xstr += istr[i]
-			if (i%2 !=0):
-				xstr+=":"
-		xstr = xstr[:len(xstr)-1]
-		self.s = xstr[::-1]
-		self.d = xstr
-		self.t = random.sample(['\x80\x00','\x80\x06'],2)[random.randint(0,1)]
-		self.eth = Eth(xstr,xstr[::-1],self.t)
+		self.eth = Eth("\x00\x0c\x29\x0d\x2b\xae\x30\x46\x9a\x06\x8b\x4b\x08\x00")
+		self.t = '\x08\x00'
+		self.d = "00:0c:29:0d:2b:ae"
+		self.s = "30:46:9a:06:8b:4b"
 	def tearDown(self):
 		self.eth = None
 
