@@ -7,6 +7,7 @@ brief:  Structure to hold Ethernet info
 '''
 from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
+from Narith.base.Protocols import IP,Arp
 class Eth(Protocol):
 
 	# FLAGS
@@ -14,8 +15,8 @@ class Eth(Protocol):
 	#type of data rep of input
 	ISSTRING = False
 	
-	__protocols = {	'\x08\x06' : 'arp',
-			'\x08\x00' : 'ip'
+	__protocols = {	'\x08\x06' : Arp.Arp,
+			'\x08\x00' : IP.IP
 			}
 		
 	def __init__(self, binary):
@@ -95,12 +96,16 @@ class Eth(Protocol):
 		self.__src__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__ssrc__.split(":")]])
 
 	@property
-	def protocol(self):
+	def nextProtocol(self):
 		return self.__protocols[self.__type__]
-	@protocol.setter
-	def protocol(self,value):
+	@nextProtocol.setter
+	def nextProtocol(self,value):
 		if( value not in self.__protocols.values()):
 			raise ValueError,"Unsupported protocol"
 		for k,v in self.__protocols.iteritems():
 			if v == value:
 				self.__type__ = k
+
+	@property
+	def length(self):
+		return 14

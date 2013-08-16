@@ -24,12 +24,13 @@ class Dns(Protocol):
 		super( Dns, self).__init__()
 		self.__dns = {'id' : None, 'queries': [],'answers':[]}
 		self.__answers = []
-		self.__dns['id'] = int(b[:2].encode('hex'),16)
-		self.__dns['flags'] = int(b[2:4].encode('hex'),16)
-		self.__dns['nqs'] = int(b[4:6].encode('hex'),16)
-		self.__dns['ansrr'] = int(b[6:8].encode('hex'),16)
-		self.__dns['authrr'] = int(b[8:10].encode('hex'),16)
-		self.__dns['addrr'] = int(b[10:12].encode('hex'),16)
+		self.__dns['id'] 	= int(b[:2].encode('hex'),16)
+		self.__dns['flags'] 	= int(b[2:4].encode('hex'),16)
+		self.__dns['nqs'] 	= int(b[4:6].encode('hex'),16)
+		self.__dns['ansrr'] 	= int(b[6:8].encode('hex'),16)
+		self.__dns['authrr'] 	= int(b[8:10].encode('hex'),16)
+		self.__dns['addrr'] 	= int(b[10:12].encode('hex'),16)
+		self.__dns['len'] 	= len(b)
 		self.__b = b
 		queries = b[12:]
 
@@ -129,3 +130,6 @@ class Dns(Protocol):
 	@property
 	def answers(self):
 		return self.__answers
+	@property
+	def length(self):
+		return self.__dns['len']

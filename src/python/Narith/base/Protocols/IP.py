@@ -9,7 +9,7 @@ brief:  Structure to hold IP info
 
 from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
-
+from Narith.base.Protocols import Tcp, Udp
 class IP(Protocol):
 
 	# Version, Header Length, DSF, Total Length
@@ -26,8 +26,8 @@ class IP(Protocol):
 			'version'	: None
 			}
 		self.__protocols = {
-			6		: 'tcp',
-			17		: 'udp'
+			6		: Tcp.Tcp,
+			17		: Udp.Udp
 			}
 		self.ISSTRING = False
 #		'h-len'		: None,
@@ -48,7 +48,7 @@ class IP(Protocol):
 
 		#pcap files are in big endian, too bad that iterator doesn't seem handy
 		self.__ip['version'] 	= (  int(bs[0].encode( 'hex'),16) & 0xf0) >> 4
-		self.__ip['h-len']   	= (  int(bs[0].encode( 'hex'),16) & 0x0f)
+		self.__ip['h-len']   	= (  int(bs[0].encode( 'hex'),16) & 0x0f)*4
 		self.__ip['dsf']	= (  int(bs[1].encode( 'hex'),16))
 		self.__ip['len']	= (( int(bs[2].encode( 'hex'),16)) << 8) + (int(bs[3].encode('hex'),16))
 		self.__ip['id']		= (( int(bs[4].encode( 'hex'),16)) << 8) + (int(bs[5].encode('hex'),16))
@@ -116,11 +116,11 @@ class IP(Protocol):
 		self.__ip['dst'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
 	
 	@property
-	def protocol(self):
+	def nextProtocol(self):
 		return self.__sip['protocol']
 
-	@protocol.setter
-	def protocol(self,val):
+	@nextProtocol.setter
+	def nextProtocol(self,val):
 		if val not in self.__protocols.values():
 			raise ValueError,"Invalid Protocol"
 		self.__sip['protocol'] = val
@@ -129,15 +129,15 @@ class IP(Protocol):
 				self.__ip['protocol'] = k
 
 	@property
-	def len(self):
-		return self.__ip['len']
+	def length(self):
+		return self.__ip['h-len']
 
-	@len.setter
-	def len(self,value):
+	@length.setter
+	def length(self,value):
 		if type(value) != int:
 			raise ValueError, "Malformed Value"
-		self.__ip['len'] = value
-		self.__sip['len']  = str(value)
+		self.__ip['h-len'] = value
+		self.__sip['h-len']  = str(value)
 
 	def getDstSrc(self):
 		return self.__sip['dst'],self.__sip['src']

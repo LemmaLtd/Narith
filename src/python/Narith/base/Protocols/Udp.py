@@ -6,11 +6,14 @@ Date:   19th July 2013
 brief:  Structure to hold UDP info
 '''
 from Narith.base.Packet.Protocol import Protocol
-
+from Narith.base.Protocols import Dns
 ''' so far all reading from bytes,
     shall do classmethods soon '''
 class Udp(Protocol):
 
+	__protocols = {
+		53 : Dns.Dns
+		}
 	# Raw
 	def __init__(self,b):
 		super( Udp, self).__init__()
@@ -45,3 +48,21 @@ class Udp(Protocol):
 	@property
 	def len(self):
 		return self._udp['len']
+
+	@property
+	def length(self):
+		return 8
+	@property
+	def nextProtocol(self):
+		if self._udp['src'] < 1024:
+			try:
+				return self.__protocols[self._udp['src']]
+			except:
+				return None
+		elif self._udp['dst'] < 1024:
+			try:
+				return self.__protocols[self._udp['dst']]
+			except:
+				return None
+		else:
+			return None

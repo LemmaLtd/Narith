@@ -154,3 +154,6 @@ class Arp(Protocol):
 			if v == val:
 				self.__arp['opcode'] = k
 
+	@property
+	def length(self):
+		return  8 + self.__arp['hsize']*2 + self.__arp['psize']*2
