@@ -51,7 +51,12 @@ class ARLCompleter:
 commands = {
 	'list':
 		{
-		'levels'	:None,
+		'levels'	:
+				{
+				'core':None,
+				'base':None,
+				'high':None,
+				},
 		'modules'	:None,
 		},
 	'help': None,
@@ -67,7 +72,7 @@ commands = {
 		'count'		:None,
 		'interface'	:None,
 		},
-	'domains':
+	'domain':
 		{
 		'www'		:None,
 		'all'		:None,

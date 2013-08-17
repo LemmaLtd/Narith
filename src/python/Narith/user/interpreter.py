@@ -26,29 +26,25 @@ class RabbitInterpreter(Modules):
                 'list': self.list,
                 'info': self.info,
                 'set': self.set,
-		'pcap': self.pcap,
-		'domains': self.domain,
-		'local': self.local,
                 #'var': self.var,
                 }
+
         self.level = None
         self.levels = ['core', 'high', 'low']
         self.ext_msg = "\n[+] Thanks for using 'Narith', have a nice day"
+	######
+	# Module related variables
+	##########################
+	self.__pcap = None
+	self.__local = None
+	self.__domain = None
 
-    def pcap(self,x):
-	print x
-
-    def domain(self,x):
-	print x
-
-    def local(self,x):
-	print x
 
     def executer(self):
         #from environment import complete
         #complete.tab()
         while True:
-            command = raw_input(colored("Narith: >", 'blue', attrs=['underline']) + " ").lower()
+            command = raw_input(colored("Narith: >", 'blue', attrs=['underline']) + " ")
             command_list = command.split()
             if command == 'exit':
                 exit(colored(self.ext_msg, 'red'))
@@ -57,8 +53,8 @@ class RabbitInterpreter(Modules):
                    try:
                       self.commands[command_list[0]](command_list)
                    except IndexError:
-                      pass
-                except KeyError:
+			pass
+                except KeyError, TypeError:
                    cprint('[!] Command not found, run "help" to get available commands', 'red')
 
     def set(self, command):
@@ -82,12 +78,13 @@ class RabbitInterpreter(Modules):
                                           attrs=['underline']).format(
                                                                       colored(self.level, 'yellow'),
                                                                       colored(self.module, 'yellow'))
-                            command = raw_input(cli).lower()
+                            command = raw_input(cli)
                         except KeyboardInterrupt:
                             print ""
                             break
 
                         command_list = command.split()
+			command_list[0] = command_list[0].lower()
                         if command == 'back':
                             self.module = None
                             break
@@ -107,15 +104,18 @@ class RabbitInterpreter(Modules):
             elif command[1] == 'level':
                 if command[2] in self.levels:
                     self.level = command[2]
+		    self.update_commands(self.level)
                     self.module = None
                     while True:
                         cli = colored('Narith: level({0}) > ',
                                       attrs=['underline']).format(colored(self.level, 'yellow'))
-                        command = raw_input(cli).lower()
+                        command = raw_input(cli)
                         command_list = command.split()
+			command_list[0] = command_list[0].lower()
                         if command == 'back':
                             self.level = None
                             self.module = None
+			    self.update_commands()
                             break
                         elif command == 'exit':
                             exit(colored(self.ext_msg, 'red'))
@@ -132,9 +132,9 @@ class RabbitInterpreter(Modules):
             else:
                 pass
 
+
     def info(self, command):
         try:
-	    print "CURRENT:",self.module
             if self.module:
                 self.assign_modules()
                 # get the used module in case single arg provided 'info'
@@ -188,6 +188,8 @@ class RabbitInterpreter(Modules):
 	    self.modules = self.base_modules
 	else:
 	    self.modules = None
+
+
     def help(self, command):
         print ""
         print "General Commands"
@@ -204,6 +206,68 @@ class RabbitInterpreter(Modules):
         print "     exit                         exits the current task (module)"
         print "     quit                         Not yet implemented but you can try it"
         print ""
+
+    '''
+    Update commands functions:
+	On level transation, commands are injected and ejected
+	from the commands dictionary.. to govern this we should
+	make active commands exclusive to active level
+    '''
+
+    def update_commands(self, level=None):
+	if level == 'core':
+		self.update_core(1)
+		self.update_base(0)
+		self.update_high(0)
+	else:
+		self.update_core(0)
+		self.update_base(0)
+		self.update_high(0)
+
+    def update_core(self, flag):
+	if flag:
+	   self.commands['pcap']   = self.pcap
+	   self.commands['local']  = self.local
+	   self.commands['domain'] = self.domain
+	else:
+	   self.commands['pcap']   = None
+	   self.commands['local']  = None
+	   self.commands['domain'] = None
+
+    def update_base(self, flag):
+	pass
+    def update_high(self, flag):
+	pass
+
+
+    ''' 
+     Module interfaces:
+	Each module is responsible for processing its arguments
+
+    '''
+    def pcap(self,command):
+	from Narith.user.modules import PcapInterface
+	if not self.__pcap or command[1] == 'read':
+		self.__pcap = PcapInterface()
+	self.__pcap.executer(command[1:])
+
+    def domain(self,command):
+	from Narith.user.modules import DomainInterface
+	if not self.__pcap:
+		cprint('[!] No file read','red')
+		return
+	if not self.__domain or not self.__domain.pcap == self.__pcap.pcap[0]:
+		self.__domain = DomainInterface(self.__pcap.pcap[0])
+	self.__domain.executer(command[1:])
+
+    def local(self,command):
+	from Narith.user.modules import LocalInterface
+	if not self.__pcap:
+		cprint('[!] No file read','red')
+		return
+	if not self.__local:
+		self.__local = LocalInterface(self.__pcap.pcap[0])
+	self.__local.executer(command[1:])
 
 interpreter = RabbitInterpreter()
 
