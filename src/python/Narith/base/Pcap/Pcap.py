@@ -8,7 +8,7 @@ brief:  Libpcap file format
 import threading,thread,time
 from Narith.base.Exceptions.Exceptions import PcapError, PcapStructureError
 from Narith.base.External.IOManager import IOManager
-
+from Narith.user.termcolor import cprint
 class Pcap(object):
 	''' 
 	Pcap object should receive pcap binary
@@ -84,11 +84,20 @@ class Pcap(object):
 		self.__packets = []
 
 		if filename and ( type(filename) is str ) and ( len(filename) < 256):
-			self.__file = IOManager(filename,'r')
-			self.__global_header =  self.GlobalHeader(self.__file.read(24))
-			(self.__packet_headers, self.__packets) = \
+			self.__packet_count = 0
+			self.__interface = 0
+			try:
+				self.__file = IOManager(filename,'r')
+			except:
+				cprint ('[!] File %s does not exist' %filename,'red')
+				return
+			try:
+				self.__global_header =  self.GlobalHeader(self.__file.read(24))
+				(self.__packet_headers, self.__packets) = \
 						self._parseFromFile(self.__global_header.parse)
-
+			except:
+				cprint('[!] Invalid pcap file format','red')
+				return
 
 		elif binary and (type(binary) is str):
 			self.__binary = binary
@@ -140,6 +149,11 @@ class Pcap(object):
 				count +=1
 		self.__packet_count = count
 		return recs,packs
+	def close(self):
+		try:
+			self.__file.close()
+		except:
+			pass
 	## getters only
 	@property
 	def records(self):
@@ -156,3 +170,9 @@ class Pcap(object):
 	@property
 	def interface(self):
 		return self.__global_header.network
+	@property
+	def file(self):
+		try:
+			return self.__file.name
+		except:
+			return None

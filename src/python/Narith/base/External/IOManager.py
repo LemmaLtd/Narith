@@ -13,15 +13,13 @@ class IOManager():
 	__session_info__ = None
 	__mode__	= None
 	__handle__	= None
+
 	def __init__(self, fname, mode):
 		assert fname != ""
 		self.__file_used__ = fname
 		self.__session_info__ = "%s" % datetime.date.today()
 		self.__mode__ = mode
-		try:
-			self.__handle__ = file(self.__file_used__, self.__mode__)
-		except:
-			print "File %s does not exist" % self.__file_used__
+		self.__handle__ = file(self.__file_used__, self.__mode__)
 
 	def read(self, *args):
 		if len(args) > 0:
@@ -33,3 +31,6 @@ class IOManager():
 		return self.__handle__		
 	def close(self):
 		close(self.__handle__)
+	@property
+	def name(self):
+		return self.__file_used__
