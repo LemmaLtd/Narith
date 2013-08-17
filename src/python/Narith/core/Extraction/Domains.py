@@ -15,6 +15,9 @@ class DomainExtractor(object):
 			raise TypeError,"Invalid arugment or list element type"
 		self.__packets = packets
 		self.__domains = []
+		self.__servers = []
+		self.extract()
+
 	def extract(self):
 		qa = []
 		if self.__domains:
@@ -28,6 +31,10 @@ class DomainExtractor(object):
 				a = []
 				for answer in dns.answers:
 					a.append([answer[0],answer[len(answer)-1]])
+				for answer in dns.answers:
+					if answer and (dns.prev.prev.src not in self.__servers):
+						self.__servers.append(dns.prev.prev.src)
+						self.__host = dns.prev.prev.dst
 				qa.append(a)
 			except:
 				pass
@@ -62,3 +69,23 @@ class DomainExtractor(object):
 			except:
 				return False
 		return True
+
+	def domains(self, infix=''):
+		qa = []
+		for domains in self.__domains:
+			for domain in domains:
+				if domain and (infix in domain[0]) and (domain not in qa) and self._isIP(domain[1]):
+					domip = domain[0],domain[1]
+					qa.append(domip)
+		return qa
+
+	@property
+	def servers(self):
+		return self.__servers
+
+	@property
+	def host(self):
+		try:
+			return self.__host
+		except:
+			return ''
