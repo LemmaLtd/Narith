@@ -43,24 +43,24 @@ class Modules(object):
 	print '=======================\n'
 	print '     www                         prints out all remote hostnames'
 	print '     all                         prints all occurances of all hostnames during session'
-	print '     search <infix>\t\treads a substring and searches for domains that match'
+	print '     search <infix>              reads a substring and searches for domains that match'
 
     def local_module(self):
 	print ''
 	cprint('Local information module', 'green')
 	print '=======================\n'
 	print '     info                        Lists all information obtained about local host'
-	print '     host\t\t\tPrints both the local ip and hostname if exists'
-	print '     dns-servers\t\t\tPrints all dns servers used by local host'
+	print '     host                        Prints both the local ip and hostname if exists'
+	print '     dns-servers                 Prints all dns servers used by local host'
 	print '     mac-addr                    Prints the local host mac address'
 
     def core(self):
 	print ''
 	cprint('List of core modules', 'red')
 	print '====================='
-	print '    pcap\t\t\tSpecialized in extracting data from pcap'
-	print '    local\t\tSpecialized in extracting data about local user'
-	print '    domain\t\tSpecialized in extracting data about domain names'
+	print '    pcap                         Specialized in extracting data from pcap'
+	print '    local                        Specialized in extracting data about local user'
+	print '    domain                       Specialized in extracting data about domain names'
 
     def base(self):
 	print ''
