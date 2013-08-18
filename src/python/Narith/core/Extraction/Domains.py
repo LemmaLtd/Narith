@@ -9,7 +9,6 @@ from Narith.base.Packet.Packet import Packet
 from Narith.base.Protocols.Dns import Dns
 
 class DomainExtractor(object):
-
 	def __init__(self, packets):
 		if type(packets) != list and packets != [] and type(packets[0]) != Packet:
 			raise TypeError,"Invalid arugment or list element type"
@@ -78,6 +77,17 @@ class DomainExtractor(object):
 					domip = domain[0],domain[1]
 					qa.append(domip)
 		return qa
+
+	def lookup(self, ip):
+		for domains in self.__domains:
+			for domain in domains:
+				if ip == domain[1] and 'www' == domain[0].split(".")[0]:
+					return domain[0]
+		return ip
+
+	@property
+	def domainlist(self):
+		return self.__domains
 
 	@property
 	def servers(self):
