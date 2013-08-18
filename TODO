@@ -1,0 +1,42 @@
+Packet Capture File Analysis
+----------------------------
+
+
+1- Pcap building
+	Instead of Writing a full client/server to establish a pcap file. Narith can
+	build a pcap file.
+	To be considered:
+	A- Protocols used 
+	B- Data used
+	C- Packet sequence can be multiplied from an expression or randomized
+
+2- Pcap Inspection and Extraction
+	Inspect a pcap file to extract certain exchanged data.
+	A- Passwords
+	B- Files & Files categorizer (e.g. images/html/exe/elf..etc)
+	C- Domains -- DONE --
+	D- Exchanged Data
+	E- Sessions info -- DONE --
+	F- Messages
+	
+------------------
+
+Components:
+Basic:
+        1- Arguments, pcap files and external resources reader
+        2- Ethernet/IP/TCP/HTTP/FTP..etc Data extractor and analyzer
+Detailed:
+        1- I/O Manager
+        2- Categorizer
+        3- Command Matching and Inspection
+        4- Sessions Info
+        5- Session Details
+        6- Encrypted Sessions
+======================
+
+Advanced functionalities:
+- Detecting Transport layer security
+- Exchanged Emails and possible malicious mails occurrences.
+- Cryptographic Risks and IP Security and Possible intrusion.
+- Honeypots profiling and Levels of interactions.
+- The List goes on.....
