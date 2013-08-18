@@ -52,18 +52,19 @@ class SessionExtractor(object):
 		def bytes(self, val):
 			self.__bytes = val
 
-	def __init__(self, packets,records):
+	def __init__(self, packets,records, dom):
 		if type(packets) != list and packets != [] and type(packets[0]) != Packet:
 			raise TypeError,"Invalid arugment or list element type"
 		self.__packets = packets
 		self.__sessions = []
-		self.__de = DomainExtractor(packets)
+		self.__de = dom
 		self.__read = []
 		self.__records = records
 		self.__processed = 0
 		self.extract()
 
 	def extract(self):
+		import datetime, time
 		sessions = []
 		host = self.__de.host
 		times = {}
@@ -77,34 +78,37 @@ class SessionExtractor(object):
 
 			# is the local a source address?
 			if ip.src == host:
-				cur_host = self.__de.lookup(ip.dst)
 			
 				if self._alreadyRead(ip.dst):
 					if ip.dst in times:
+					#if ip.dst in times:
 						times[ip.dst].count +=1
 						times[ip.dst].bytes += record.length
-						times[ip.dst].end = self.__records[self.__packets.index(packet)].time
+						times[ip.dst].end = record.time
 					recidx += 1
 					continue
+
+				cur_host = self.__de.lookup(ip.dst)
 				self.__read.append(ip.dst)
 				start = record.time
 				times[ip.dst] = self.Session(ip.dst,cur_host,start,1,record.length)
 			# is the local a destination address?
-
 			elif ip.dst == host:
-				cur_host = self.__de.lookup(ip.src)
 				if self._alreadyRead(ip.src):
 					if ip.src in times:
 						times[ip.src].count +=1
 						times[ip.src].bytes += record.length
-						times[ip.src].end = self.__records[self.__packets.index(packet)].time
+						times[ip.src].end = record.time
 					recidx +=1
 					continue
+				cur_host = self.__de.lookup(ip.src)
 				self.__read.append(ip.src)
 				start = record.time
 				times[ip.src] = self.Session(ip.src,cur_host,start,1,record.length)
 			recidx +=1
+
 		count = 0
+
 		for ip, session in times.iteritems():
 			count += session.count
 		self.__processed = count
@@ -123,6 +127,7 @@ class SessionExtractor(object):
 
 	def search(self, infix=''):
 		sessions = []
+		
 		for host,session in self.__sessions.iteritems():
 			if infix in host or infix in session.hostname:
 				sessions.append(session)

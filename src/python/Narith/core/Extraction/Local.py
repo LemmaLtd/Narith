@@ -8,10 +8,11 @@ brief: Extracts info about local user
 from Narith.core.Extraction.Domains import DomainExtractor
 class LocalInfo(object):
 
-	def __init__(self, packets):
+	def __init__(self, packets,dom):
 		if type(packets) != list and packets != [] and type(packets[0]) != Packet:
 			raise TypeError, "Invalid argument or list element type"
-		self.__dom = DomainExtractor(packets)
+		#self.__dom = DomainExtractor(packets)
+		self.__dom = dom
 		self.__info = dict()
 		
 		self.__info['addr'] 	= self.__dom.host
