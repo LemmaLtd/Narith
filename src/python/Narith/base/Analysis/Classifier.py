@@ -16,20 +16,25 @@ class Classifier(object):
 		self.__packets = []
 		self.__rawPackets = packets
 		self.__records = records
-
+		self.__corrupted = 0
 	def classify(self):
+		import time
+		count = 0
 		for p in self.__rawPackets:
+			count +=1
 			packet = Packet()
 			parent = Eth.Eth(p[:14])
 			p = p[14:]
-			while parent != None:
+			while parent != None or p == '':
 				packet.attach(parent)
 				prot = parent.nextProtocol
 				if prot == None:
 					break
 				parent = prot(p)
+			
+
 				p = p[parent.length:]
-			self.__packets.append(packet)
+				self.__packets.append(packet)
 		return self.__packets
 	@property
 	def packets(self):
@@ -40,4 +45,6 @@ class Classifier(object):
 	@property
 	def size(self):
 		return len(self.__packets)
-	
+	@property
+	def corrupted(self):
+		return self.__corrupted

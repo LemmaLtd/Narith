@@ -109,3 +109,7 @@ class Eth(Protocol):
 	@property
 	def length(self):
 		return 14
+
+	@property
+	def iscorrupted(self):
+		return False

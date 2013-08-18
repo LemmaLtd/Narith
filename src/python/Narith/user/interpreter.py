@@ -164,8 +164,7 @@ class RabbitInterpreter(Modules):
                         cprint("[!] Module not found run 'list modules' to get available modules", 'red')
             else:
                 cprint("[!] Use a module first or run 'list'", 'red')
-        except Exception as e:
-	    print e
+        except Exception:
             cprint("[!] Use a module first or run 'list'", 'red')
 
     def list(self, command):
@@ -271,8 +270,6 @@ class RabbitInterpreter(Modules):
 		cprint("[>] Classifying raw packets",'blue')
 		self.__classifier = Classifier(self.__pcap.pcap[0].packets[0:])
 		self.__packets = self.__classifier.classify()
-
-
     def domain(self,command):
 	from Narith.user.modules import DomainInterface
 	if not self.__pcap:

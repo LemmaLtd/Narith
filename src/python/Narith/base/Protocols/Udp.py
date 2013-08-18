@@ -14,15 +14,19 @@ class Udp(Protocol):
 	__protocols = {
 		53 : Dns.Dns
 		}
+
 	# Raw
 	def __init__(self,b):
 		super( Udp, self).__init__()
 		self._udp = {'src':None}
-		
-		self._udp['src'] = int(b[:2].encode('hex'),16)
-		self._udp['dst'] = int(b[2:4].encode('hex'),16)
-		self._udp['len'] = int(b[4:6].encode('hex'),16)
-		self._udp['checksum'] = int(b[6:8].encode('hex'),16)
+		self.__corrupted = False
+		try:
+			self._udp['src'] = int(b[:2].encode('hex'),16)
+			self._udp['dst'] = int(b[2:4].encode('hex'),16)
+			self._udp['len'] = int(b[4:6].encode('hex'),16)
+			self._udp['checksum'] = int(b[6:8].encode('hex'),16)
+		except:
+			self.__corrupted = True
 	###################
 	# Properties
 
@@ -66,3 +70,7 @@ class Udp(Protocol):
 				return None
 		else:
 			return None
+
+	@property
+	def iscorrupted(self):
+		return self.__corrupted

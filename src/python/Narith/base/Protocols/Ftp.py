@@ -20,6 +20,7 @@ class Ftp(Protocol):
 				'cmd' :None,
 				'code':None,
 			    }
+		self.__corrupted = False
 		b.strip("\x0d\x0a")
 		self.__length = len(b)
 		#determine first element type
@@ -37,8 +38,10 @@ class Ftp(Protocol):
 			self._ftp['type'] = 'response'
 		except ValueError:
 			pass
-		self._ftp['arg'] = " ".join(b.split("\x20")[1:])
-
+		try:
+			self._ftp['arg'] = " ".join(b.split("\x20")[1:])
+		except:
+			self.__corrupted = True
 	##############
 	# properties
 	@property
@@ -55,3 +58,6 @@ class Ftp(Protocol):
 	@property
 	def length(self):
 		return self.__length
+	@property
+	def iscorrupted(self):
+		return self.__corrupted

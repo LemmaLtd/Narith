@@ -69,6 +69,7 @@ class Modules(object):
 	print '    pcap                         Specialized in extracting data from pcap'
 	print '    local                        Specialized in extracting data about local user'
 	print '    domain                       Specialized in extracting data about domain names'
+	print '    session                      Specialized in extracting sessions  information'
 
     def base(self):
 	print ''

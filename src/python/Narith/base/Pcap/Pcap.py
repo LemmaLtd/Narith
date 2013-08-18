@@ -115,6 +115,7 @@ class Pcap(object):
 						self._parseFromBin(binary[24:], self.__global_header.parse)
 
 		else:
+			
 			raise ValueError,"Invalid filename length or binary data type"
 	@classmethod
 	def fromBinary(cls, binary):

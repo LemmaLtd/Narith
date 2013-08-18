@@ -71,11 +71,14 @@ class SessionExtractor(object):
 		recidx = 0
 		for packet in self.__packets:
 			ip = self._hasIP(packet)
-			record = self.__records[recidx]
+			try:
+				record = self.__records[recidx]
+			except:
+				pass
+
 			if not ip:
 				recidx += 1
 				continue
-
 			# is the local a source address?
 			if ip.src == host:
 			

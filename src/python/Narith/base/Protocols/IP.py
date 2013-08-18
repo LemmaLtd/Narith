@@ -47,6 +47,7 @@ class IP(Protocol):
 			raise BytesStreamError,"Given bytes array is too short"
 
 		#pcap files are in big endian, too bad that iterator doesn't seem handy
+
 		self.__ip['version'] 	= (  int(bs[0].encode( 'hex'),16) & 0xf0) >> 4
 		self.__ip['h-len']   	= (  int(bs[0].encode( 'hex'),16) & 0x0f)*4
 		self.__ip['dsf']	= (  int(bs[1].encode( 'hex'),16))
@@ -63,14 +64,17 @@ class IP(Protocol):
 					  (( int(bs[18].encode('hex'),16)) << 8)  + (int(bs[19].encode('hex'),16))
 		self._formatted()
 
-
 	def _formatted(self):
 		if self.ISSTRING:
 			return self.__sip
 		#on the contrary, iterators seems handy here \o/
+		
 		for i,v in self.__ip.iteritems():
 			# are we formatting protocol?
 			if( i == 'protocol'):
+				if v not in self.__protocols:
+					self.__sip[i] = None
+					continue
 				self.__sip[i] = self.__protocols[v]
 				continue
 			elif ((i == 'src') or (i == 'dst')) and (self.__ip['version'] == 4):
@@ -139,6 +143,9 @@ class IP(Protocol):
 		self.__ip['h-len'] = value
 		self.__sip['h-len']  = str(value)
 
+	@property
+	def iscorrupted(self):
+		return False
 	def getDstSrc(self):
 		return self.__sip['dst'],self.__sip['src']
 

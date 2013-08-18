@@ -90,3 +90,7 @@ class Tcp(Protocol):
 	@property
 	def length(self):
 		return self._tcp['hlen']
+
+	@property
+	def iscorrupted(self):
+		return False

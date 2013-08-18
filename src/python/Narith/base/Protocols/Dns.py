@@ -24,49 +24,58 @@ class Dns(Protocol):
 		super( Dns, self).__init__()
 		self.__dns = {'id' : None, 'queries': [],'answers':[]}
 		self.__answers = []
-		self.__dns['id'] 	= int(b[:2].encode('hex'),16)
-		self.__dns['flags'] 	= int(b[2:4].encode('hex'),16)
-		self.__dns['nqs'] 	= int(b[4:6].encode('hex'),16)
-		self.__dns['ansrr'] 	= int(b[6:8].encode('hex'),16)
-		self.__dns['authrr'] 	= int(b[8:10].encode('hex'),16)
-		self.__dns['addrr'] 	= int(b[10:12].encode('hex'),16)
-		self.__dns['len'] 	= len(b)
-		self.__b = b
+		self.__corrupted = False
+		try:
+			self.__dns['id'] 	= int(b[:2].encode('hex'),16)
+			self.__dns['flags'] 	= int(b[2:4].encode('hex'),16)
+			self.__dns['nqs'] 	= int(b[4:6].encode('hex'),16)
+			self.__dns['ansrr'] 	= int(b[6:8].encode('hex'),16)
+			self.__dns['authrr'] 	= int(b[8:10].encode('hex'),16)
+			self.__dns['addrr'] 	= int(b[10:12].encode('hex'),16)
+			self.__dns['len'] 	= len(b)
+			self.__b = b
+		except:
+			self.__corrupted = True
+			return
+
 		queries = b[12:]
+		try:
+			for i in range(0,self.__dns['nqs']):
+				self.__dns['queries'].append([])
+				# Name
+				self.__dns['queries'][i].append(".".join(self.extract_name(queries.split('\x00')[0])))
+				# Type
+				length = len(self.__dns['queries'][i][0]) + 1
+				self.__dns['queries'][i].append(int(queries[length:][:3].encode('hex'),16)) 
+				# Class
+				self.__dns['queries'][i].append(int(queries[length:][3:5].encode('hex'),16))
+				queries = queries[len(self.__dns['queries'][i][0])+6:]
 
-		for i in range(0,self.__dns['nqs']):
-			self.__dns['queries'].append([])
-			# Name
-			self.__dns['queries'][i].append(".".join(self.extract_name(queries.split('\x00')[0])))
-			# Type
-			length = len(self.__dns['queries'][i][0]) + 1
-			self.__dns['queries'][i].append(int(queries[length:][:3].encode('hex'),16)) 
-			# Class
-			self.__dns['queries'][i].append(int(queries[length:][3:5].encode('hex'),16))
-			queries = queries[len(self.__dns['queries'][i][0])+6:]
-
-		for i in range(0,self.__dns['ansrr']):
-			self.__dns['answers'].append([])
-			# Name
-			self.__dns['answers'][i].append(queries[:2])
-			# Type
-			self.__dns['answers'][i].append(int(queries[2:4].encode('hex'),16))
-			# Class
-			self.__dns['answers'][i].append(int(queries[4:6].encode('hex'),16))
-			# TTL
-			self.__dns['answers'][i].append(str(int(queries[6:10].encode('hex'),16) / 60)+":" +\
+			for i in range(0,self.__dns['ansrr']):
+				self.__dns['answers'].append([])
+				# Name
+				self.__dns['answers'][i].append(queries[:2])
+				# Type
+				self.__dns['answers'][i].append(int(queries[2:4].encode('hex'),16))
+				# Class
+				self.__dns['answers'][i].append(int(queries[4:6].encode('hex'),16))
+				# TTL
+				self.__dns['answers'][i].append(str(int(queries[6:10].encode('hex'),16) / 60)+":" +\
 							str(int(queries[6:10].encode('hex'),16) % 60))
-			# Data Length
-			self.__dns['answers'][i].append(int(queries[10:12].encode('hex'),16))
+				# Data Length
+				self.__dns['answers'][i].append(int(queries[10:12].encode('hex'),16))
 
-			if len(queries[12:12+self.__dns['answers'][i][4]]) == 4:
-				self.__dns['answers'][i].append( ".".join(\
-					[str(int(j.encode('hex'),16)) for j in queries[12:16]]) )
-			elif len(queries[12:12+self.__dns['answers'][i][4]]) > 4:
-				self.__dns['answers'][i].append( queries[12:12+self.__dns['answers'][i][4]] )
-			else:
-				#SHOULD DO SOMETHING
-				return
+				if len(queries[12:12+self.__dns['answers'][i][4]]) == 4:
+					self.__dns['answers'][i].append( ".".join(\
+						[str(int(j.encode('hex'),16)) for j in queries[12:16]]) )
+				elif len(queries[12:12+self.__dns['answers'][i][4]]) > 4:
+					self.__dns['answers'][i].append( queries[12:12+self.__dns['answers'][i][4]] )
+				else:
+					#SHOULD DO SOMETHING
+					return
+		except:
+			self.__corrupted = True
+			return
 
 			queries = queries[12+self.__dns['answers'][i][4]:]
 
@@ -134,3 +143,7 @@ class Dns(Protocol):
 	@property
 	def length(self):
 		return self.__dns['len']
+
+	@property
+	def iscorrupted(self):
+		return self.__corrupted
