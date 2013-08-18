@@ -40,3 +40,32 @@ Advanced functionalities:
 - Cryptographic Risks and IP Security and Possible intrusion.
 - Honeypots profiling and Levels of interactions.
 - The List goes on.....
+
+
+--------------------
+User interaction:
+
+GUI:
+	Building GUI with tab for each module and tabular layout
+	interfaces similar to interpreter module interfaces can
+	be used
+
+Statistics:
+	Statistics and infographics to be build out of obtained
+	information.
+
+Visualization:
+	Automatically render media objects such as images,audio and video
+
+--------------------
+Security wise:
+
+Spoofing:
+	Extract any anomalies and inspect malicious behaviour.
+
+Files:
+	Inspect received files and identify any malicious file (malwares)
+
+Botnet:
+	Inspect sent & received data and identify connection nature by
+	stored Botnet connection patterns
