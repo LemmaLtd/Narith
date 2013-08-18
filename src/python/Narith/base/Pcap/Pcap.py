@@ -9,6 +9,7 @@ import threading,thread,time
 from Narith.base.Exceptions.Exceptions import PcapError, PcapStructureError
 from Narith.base.External.IOManager import IOManager
 from Narith.user.termcolor import cprint
+import datetime
 class Pcap(object):
 	''' 
 	Pcap object should receive pcap binary
@@ -68,7 +69,9 @@ class Pcap(object):
 	class PacketRecord(object):
 		def __init__(self, binary, parse):
 			self.__timestampSec 	= int(parse(binary[:4   ]).encode('hex'),16)
+			self.__timeSec	 	= datetime.datetime.fromtimestamp(self.__timestampSec).strftime("%M-%d %H:%M:%S")
 			self.__timestampMicro	= int(parse(binary[4:8  ]).encode('hex'),16)
+			self.__timeMicro	= datetime.datetime.fromtimestamp(self.__timestampMicro).strftime("%M-%d %H:%M:%S:%U")
 			self.__includedLength	= int(parse(binary[8:12 ]).encode('hex'),16)
 			self.__originalLength	= int(parse(binary[12:16]).encode('hex'),16)
 
@@ -78,7 +81,13 @@ class Pcap(object):
 		@property
 		def origLength(self):
 			return self.__originalLength
-			
+
+		@property
+		def time(self):
+			return self.__timeMicro
+		@property
+		def timestamp(self):
+			return self.__timestampMicro
 	def __init__(self, filename=None,binary=None):
 		self.__records = []
 		self.__packets = []
