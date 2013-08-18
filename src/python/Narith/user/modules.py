@@ -54,6 +54,14 @@ class Modules(object):
 	print '     dns-servers                 Prints all dns servers used by local host'
 	print '     mac-addr                    Prints the local host mac address'
 
+    def session_module(self):
+	print ''
+	cprint('Session information module','green')
+	print '=======================\n'
+	print '     all                         Lists all sessions information'
+	print '     search <infix>              Searches for sessions with hosts which contain the infix'
+	print '     www                         Lists all sessions with www domain name'
+	print '     protocol                    Lists sessions which uses certain protocol'
     def core(self):
 	print ''
 	cprint('List of core modules', 'red')
@@ -210,3 +218,54 @@ class LocalInterface(object):
 	@property
 	def pcap(self):
 		return self.__pcap
+
+class SessionInterface(object):
+
+	def __init__(self, pcap):
+		from Narith.base.Analysis.Classifier import Classifier
+		from Narith.core.Extraction.Session import SessionExtractor
+		self.__commands = \
+		{
+		'all'    : self.all,
+		'search' : self.search,
+		'www'    : self.www,
+		'protocol': self.protocol
+		}
+		self.__pcap =  pcap
+		packets = Classifier(pcap.packets).classify()
+		self.__se = SessionExtractor(packets,pcap.records)
+
+	def executer(self, commands):
+		if commands[0] not in self.__commands:
+			cprint("[!] Command not found",'red')
+			return
+		self.__commands[commands[0]](commands[1:])
+
+	def all(self, commands):
+		print self.__se.sessions
+		for host,session in self.__se.sessions.iteritems():
+			print "Host:\t\t",session.hostname
+			print "Packets no.:\t", session.count
+			print "Date:\t\t",session.start,"~",session.end
+			print "Bytes:\t\t",session.bytes
+			print ""
+
+	def search(self, commands):
+		for session in self.__se.search(commands[0]):
+			print "Host:\t\t",session.hostname
+			print "Packets no.:\t", session.count
+			print "Date:\t\t",session.start,"~",session.end
+			print "Bytes:\t\t",session.bytes
+			print ""
+
+	def www(self, commands):
+		for session in self.__se.prefix("www"):
+			print "Host:\t\t",session.hostname
+			print "Packets no.:\t", session.count
+			print "Date:\t\t",session.start,"~",session.end
+			print "Bytes:\t\t",session.bytes
+			print ""
+
+	def protocol(self, commands):
+			pass
+
