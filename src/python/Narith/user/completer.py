@@ -85,6 +85,13 @@ commands = {
 		'dns-servers'	:None,
 		'mac-addr'	:None,
 		},
+	'session':
+		{
+		'all'		:None,
+		'search'	:None,
+		'www'		:None,
+		'protocol'	:None,
+		}
 	}
 readline.set_completer_delims(' \t\n;')
 readline.parse_and_bind("tab: complete")

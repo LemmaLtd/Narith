@@ -38,7 +38,7 @@ class RabbitInterpreter(Modules):
 	self.__pcap = None
 	self.__local = None
 	self.__domain = None
-
+	self.__session = None
 
     def executer(self):
         #from environment import complete
@@ -229,10 +229,12 @@ class RabbitInterpreter(Modules):
 	   self.commands['pcap']   = self.pcap
 	   self.commands['local']  = self.local
 	   self.commands['domain'] = self.domain
+	   self.commands['session'] = self.session
 	else:
 	   self.commands['pcap']   = None
 	   self.commands['local']  = None
 	   self.commands['domain'] = None
+	   self.commands['session']= None
 
     def update_base(self, flag):
 	pass
@@ -268,6 +270,14 @@ class RabbitInterpreter(Modules):
 	if not self.__local:
 		self.__local = LocalInterface(self.__pcap.pcap[0])
 	self.__local.executer(command[1:])
+    def session(self, command):
+	from Narith.user.modules import SessionInterface
+	if not self.__pcap:
+		cprint ('[!] No file read','red')
+		return
+	if not self.__session:
+		self.__session = SessionInterface(self.__pcap.pcap[0])
+	self.__session.executer(command[1:])
 
 interpreter = RabbitInterpreter()
 
