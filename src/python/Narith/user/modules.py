@@ -139,10 +139,9 @@ class PcapInterface(object):
 	@property
 	def pcap(self):
 		return self.__pcap
-
 class DomainInterface(object):
 
-	def __init__(self, pcap):
+	def __init__(self, pcap, packets):
 		from Narith.base.Analysis.Classifier import Classifier
 		from Narith.core.Extraction.Domains import DomainExtractor
 
@@ -154,8 +153,8 @@ class DomainInterface(object):
 		}
 		self.__domain = None
 		self.__pcap = pcap
-		packets = Classifier(pcap.packets).classify()
-		self.__de = DomainExtractor(packets)
+		self.__packets = packets
+		self.__de = DomainExtractor(self.__packets)
 		
 	def executer(self, commands):
 		if commands[0] not in self.__commands:
@@ -177,9 +176,12 @@ class DomainInterface(object):
 	def pcap(self):
 		return self.__pcap
 
+	@property
+	def extractor(self):
+		return self.__de
 class LocalInterface(object):
 
-	def __init__(self, pcap):
+	def __init__(self, pcap, packets, extractor):
 		from Narith.base.Analysis.Classifier import Classifier
 		from Narith.core.Extraction.Local import LocalInfo
 
@@ -192,8 +194,7 @@ class LocalInterface(object):
 	        }
 	        self.__local = None
 	        self.__pcap = pcap
-	        packets = Classifier(pcap.packets).classify()
-	        self.__li = LocalInfo(packets)
+	        self.__li = LocalInfo(packets,extractor)
 
 	def executer(self, commands):
 		if commands[0] not in self.__commands:
@@ -221,7 +222,7 @@ class LocalInterface(object):
 
 class SessionInterface(object):
 
-	def __init__(self, pcap):
+	def __init__(self, pcap, packets, extractor):
 		from Narith.base.Analysis.Classifier import Classifier
 		from Narith.core.Extraction.Session import SessionExtractor
 		self.__commands = \
@@ -232,8 +233,7 @@ class SessionInterface(object):
 		'protocol': self.protocol
 		}
 		self.__pcap =  pcap
-		packets = Classifier(pcap.packets).classify()
-		self.__se = SessionExtractor(packets,pcap.records)
+		self.__se = SessionExtractor(packets,pcap.records, extractor)
 
 	def executer(self, commands):
 		if commands[0] not in self.__commands:
@@ -243,28 +243,36 @@ class SessionInterface(object):
 
 	def all(self, commands):
 		print self.__se.sessions
+		count = 0
 		for host,session in self.__se.sessions.iteritems():
-			print "Host:\t\t",session.hostname
-			print "Packets no.:\t", session.count
-			print "Date:\t\t",session.start,"~",session.end
-			print "Bytes:\t\t",session.bytes
+			cprint ("Host:\t\t"+session.hostname,'green')
+			cprint ("Packets no.:\t"+str(session.count),'green')
+			cprint ("Date:\t\t"+session.start+" ~ "+session.end,'green')
+			cprint ("Bytes:\t\t"+str(session.bytes),'green')
 			print ""
-
+			count +=1
+		cprint("Total sessions: "+str(count),'magenta')
 	def search(self, commands):
+		count = 0
 		for session in self.__se.search(commands[0]):
-			print "Host:\t\t",session.hostname
-			print "Packets no.:\t", session.count
-			print "Date:\t\t",session.start,"~",session.end
-			print "Bytes:\t\t",session.bytes
+			cprint ("Host:\t\t"+session.hostname,'green')
+			cprint ("Packets no.:\t"+str(session.count),'green')
+			cprint ("Date:\t\t"+session.start+" ~ "+session.end,'green')
+			cprint ("Bytes:\t\t"+str(session.bytes),'green')
 			print ""
+			count +=1
+		cprint("Total sessions: "+str(count),'magenta')
 
 	def www(self, commands):
 		for session in self.__se.prefix("www"):
-			print "Host:\t\t",session.hostname
-			print "Packets no.:\t", session.count
-			print "Date:\t\t",session.start,"~",session.end
-			print "Bytes:\t\t",session.bytes
+			cprint ("Host:\t\t"+session.hostname,'green')
+			cprint ("Packets no.:\t"+str(session.count),'green')
+			cprint ("Date:\t\t"+session.start+" ~ "+session.end,'green')
+			cprint ("Bytes:\t\t"+str(session.bytes),'green')
 			print ""
+			count +=1
+		cprint("Total sessions: "+str(count),'magenta')
+
 
 	def protocol(self, commands):
 			pass
