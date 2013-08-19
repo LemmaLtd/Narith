@@ -157,3 +157,7 @@ class Arp(Protocol):
 	@property
 	def length(self):
 		return  8 + self.__arp['hsize']*2 + self.__arp['psize']*2
+
+	@property
+	def iscorrupted(self):
+		return False

@@ -39,15 +39,27 @@ class Tcp(Protocol):
 		self._tcp['flags']    = int(b[12:14].encode('hex'),16) & 0xfff
 		self._tcp['winsize']  = int(b[14:16].encode('hex'),16)
 		self._tcp['checksum'] = int(b[16:18].encode('hex'),16)
-		########
-		# TODO:
-		# Link packet's different protocols to obtain
-		# information from parent protocol.
-		########
+		#self._tcp['c-checksum'] = self._checksum(b[:16] + '\x00\x00' + b[18:])
 
-	##########
+
+	def _checksum(self, tcp):
+		checksum = 0
+		count = 0
+		size = len(tcp)
+		while size > 1:
+			checksum += int(( str("%02x" % ord(tcp[count])) + str("%02x" % ord(tcp[count + 1]))), 16)
+			size -=2
+			count +=2
+		if size:
+			checksum += ord(tcp[count])
+		checksum = (checksum >> 16) + (checksum & 0xffff)
+		checksum += (checksum >> 16)
+		return (~checksum) & 0xffff
+
+
+	################
 	# Properties
-
+	################
 	@property
 	def src(self):
 		return self._tcp['src']
@@ -90,3 +102,7 @@ class Tcp(Protocol):
 	@property
 	def length(self):
 		return self._tcp['hlen']
+
+	@property
+	def iscorrupted(self):
+		return False

@@ -13,7 +13,7 @@ brief: interepets and execute user commands
 
 from Narith.user.termcolor import colored, cprint
 from Narith.user.modules import Modules
-
+from Narith.base.Analysis.Classifier import Classifier
 
 class RabbitInterpreter(Modules):
     """
@@ -40,6 +40,10 @@ class RabbitInterpreter(Modules):
 	self.__domain = None
 	self.__session = None
 
+	#######
+	# Aiding modules
+	######################
+	self.__classifier = None
     def executer(self):
         #from environment import complete
         #complete.tab()
@@ -93,7 +97,11 @@ class RabbitInterpreter(Modules):
                         else:
                             try:
                                 try:
+				    import datetime, time
+				    start_time = datetime.datetime.fromtimestamp(time.time()).strftime("%M:%S")
                                     self.commands[command_list[0]](command_list)
+				    end_time = datetime.datetime.fromtimestamp(time.time()).strftime("%M:%S")
+				    cprint("[%] Time elapsed: "+start_time+" ~ "+end_time,"white","on_red")
                                 except IndexError:
                                     pass
                             except KeyError:
@@ -122,7 +130,12 @@ class RabbitInterpreter(Modules):
                         else:
                             try:
                                 try:
+				    import datetime, time
+				    start_time = datetime.datetime.fromtimestamp(time.time()).strftime("%M:%S")
                                     self.commands[command_list[0]](command_list)
+				    end_time = datetime.datetime.fromtimestamp(time.time()).strftime("%M:%S")
+				    print ""
+				    cprint("[%] Time elapsed: "+start_time+" ~ "+end_time+"","white","on_red")
                                 except IndexError:
                                     pass
                             except KeyError:
@@ -151,8 +164,7 @@ class RabbitInterpreter(Modules):
                         cprint("[!] Module not found run 'list modules' to get available modules", 'red')
             else:
                 cprint("[!] Use a module first or run 'list'", 'red')
-        except Exception as e:
-	    print e
+        except Exception:
             cprint("[!] Use a module first or run 'list'", 'red')
 
     def list(self, command):
@@ -161,7 +173,7 @@ class RabbitInterpreter(Modules):
                 cprint('[+] Available levels are [Base, Core, High]', 'green')
             elif command[1] == 'modules':
                 if self.level:
-                    if self.level == 'core':
+                    if self.level   == 'core':
                         self.core()
                     elif self.level == 'high':
                         self.high()
@@ -250,33 +262,66 @@ class RabbitInterpreter(Modules):
     def pcap(self,command):
 	from Narith.user.modules import PcapInterface
 	if not self.__pcap or command[1] == 'read':
+		cprint("[>] Initializing pcap module",'blue')
 		self.__pcap = PcapInterface()
+		self.__classifier = None
+		self.__domain     = None
+		self.__local      = None
+		self.__session    = None
+
 	self.__pcap.executer(command[1:])
+	if not self.__classifier:
+		cprint("[>] Classifying raw packets",'blue')
+		self.__classifier = Classifier(self.__pcap.pcap[0].packets[0:])
+		self.__packets    = self.__classifier.classify()
+		if self.__classifier.corrupted:
+			cprint("[!] corrupted packets: " + str(self.__classifier.corrupted),'red')
+
 
     def domain(self,command):
 	from Narith.user.modules import DomainInterface
 	if not self.__pcap:
 		cprint('[!] No file read','red')
 		return
+
 	if not self.__domain or not self.__domain.pcap == self.__pcap.pcap[0]:
-		self.__domain = DomainInterface(self.__pcap.pcap[0])
+		cprint("[>] Initializing domain module",'blue')
+		self.__domain = DomainInterface(self.__pcap.pcap[0], self.__packets[0:])
+
 	self.__domain.executer(command[1:])
 
+
     def local(self,command):
+	from Narith.user.modules import DomainInterface
 	from Narith.user.modules import LocalInterface
+
 	if not self.__pcap:
 		cprint('[!] No file read','red')
 		return
+
+	if not self.__domain or not self.__domain.pcap == self.__pcap.pcap[0]:
+		self.__domain = DomainInterface(self.__pcap.pcap[0], self.__packets[0:])
+
 	if not self.__local:
-		self.__local = LocalInterface(self.__pcap.pcap[0])
+		cprint("[>] Initializing localinfo module",'blue')
+		self.__local = LocalInterface(self.__pcap.pcap[0], self.__packets[0:],self.__domain.extractor)
+
 	self.__local.executer(command[1:])
+
+
     def session(self, command):
+	from Narith.user.modules import DomainInterface
 	from Narith.user.modules import SessionInterface
 	if not self.__pcap:
 		cprint ('[!] No file read','red')
 		return
+
+	if not self.__domain or not self.__domain.pcap == self.__pcap.pcap[0]:
+		self.__domain = DomainInterface(self.__pcap.pcap[0], self.__packets[0:])
+
 	if not self.__session:
-		self.__session = SessionInterface(self.__pcap.pcap[0])
+		cprint("[>] Initializing session module",'blue')
+		self.__session = SessionInterface(self.__pcap.pcap[0], self.__packets[0:], self.__domain.extractor)
 	self.__session.executer(command[1:])
 
 interpreter = RabbitInterpreter()

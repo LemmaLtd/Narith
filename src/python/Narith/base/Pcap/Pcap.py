@@ -89,7 +89,7 @@ class Pcap(object):
 		def timestamp(self):
 			return self.__timestampMicro
 	def __init__(self, filename=None,binary=None):
-		self.__records = []
+		self.__packet_headers = []
 		self.__packets = []
 
 		if filename and ( type(filename) is str ) and ( len(filename) < 256):
@@ -110,10 +110,13 @@ class Pcap(object):
 
 		elif binary and (type(binary) is str):
 			self.__binary = binary
-			self.__global_header =  self.GlobalHeader(binary[:24])
-			(self.__packet_headers, self.__packets) = \
+			try:
+				self.__global_header =  self.GlobalHeader(binary[:24])
+				(self.__packet_headers, self.__packets) = \
 						self._parseFromBin(binary[24:], self.__global_header.parse)
-
+			except:
+				cprint('[!] Invalid pcap file format','red')
+				return
 		else:
 			raise ValueError,"Invalid filename length or binary data type"
 	@classmethod
