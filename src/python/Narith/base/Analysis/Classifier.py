@@ -6,7 +6,7 @@ Date:	16th August 2013
 brief:	Classifies raw packet wireframes into Protocols and packets
 '''
 from Narith.base.Pcap.Pcap import Pcap
-from Narith.base.Protocols import Eth#, Arp, IP, Dns, Tcp, Udp, Ftp
+from Narith.base.Protocols import Eth, ProtData #, Arp, IP, Dns, Tcp, Udp, Ftp
 from Narith.base.Packet.Packet import Packet
 class Classifier(object):
 
@@ -20,22 +20,32 @@ class Classifier(object):
 	def classify(self):
 		import time
 		count = 0
+		corrupted = 0
 		for p in self.__rawPackets:
 			count +=1
 			packet = Packet()
 			parent = Eth.Eth(p[:14])
 			p = p[14:]
+			invalid = 0
 			while parent != None or p == '':
 				packet.attach(parent)
 				prot = parent.nextProtocol
 				if prot == None:
 					break
 				parent = prot(p)
+				if type(parent).__name__ == 'IP' and parent.corrupted:
+					invalid  = 1
 			
 
 				p = p[parent.length:]
 				self.__packets.append(packet)
+			corrupted += invalid
+			if p != '':
+				packet.attach(ProtData.ProtData(p))
+
+		self.__corrupted = corrupted
 		return self.__packets
+
 	@property
 	def packets(self):
 		return self.__packets

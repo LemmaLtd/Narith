@@ -10,44 +10,32 @@ brief:  Structure to hold IP info
 from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
 from Narith.base.Protocols import Tcp, Udp
+
 class IP(Protocol):
 
+	__protocols = {
+		6		: Tcp.Tcp,
+		17		: Udp.Udp
+		}
+
+	#############################################
 	# Version, Header Length, DSF, Total Length
 	# Identification, Flags, Fragment Offset, Ttl
 	# Protocol, checksum, Src, Dst
 	# and I like the dictionary more..
+	##############################################
 	def __init__(self, bs):
 		super(IP, self).__init__()
-		self.__ip = {
-			'version'	: None, 
-#			One field is enough to initalize dict.
-			}
-		self.__sip = {
-			'version'	: None
-			}
-		self.__protocols = {
-			6		: Tcp.Tcp,
-			17		: Udp.Udp
-			}
-		self.ISSTRING = False
-#		'h-len'		: None,
-#		'dsf'		: None,
-#		'len'		: None,
-#		'id'		: None,
-#		'flags'		: None,
-#		'frag-off'	: None,
-#		'ttl'		: None,
-#		'protocol'	: None,
-#		'checksum'	: None,
-#		'src'		: None,
-#		'dst'		: None
+		self.__ip 	= {}
+		self.__sip 	= {}
+		self.ISSTRING   = False
 
 		# if inserted bytes less than 20 bytes then its not ip
 		if len(bs) < 20:
 			raise BytesStreamError,"Given bytes array is too short"
 
 		#pcap files are in big endian, too bad that iterator doesn't seem handy
-
+		self.corrupted = False
 		self.__ip['version'] 	= (  int(bs[0].encode( 'hex'),16) & 0xf0) >> 4
 		self.__ip['h-len']   	= (  int(bs[0].encode( 'hex'),16) & 0x0f)*4
 		self.__ip['dsf']	= (  int(bs[1].encode( 'hex'),16))
@@ -62,7 +50,11 @@ class IP(Protocol):
 					  (( int(bs[14].encode('hex'),16)) << 8)  + (int(bs[15].encode('hex'),16))
 		self.__ip['dst']	= (( int(bs[16].encode('hex'),16)) << 24) + ((int(bs[17].encode('hex'),16)) << 16) +\
 					  (( int(bs[18].encode('hex'),16)) << 8)  + (int(bs[19].encode('hex'),16))
+		self.__ip['c-checksum'] = self._checksum(bs[:10] + '\x00\x00' + bs[12:self.__ip['h-len']])
 		self._formatted()
+		if self.__ip['checksum'] != self.__ip['c-checksum']:
+			self.corrupted = True
+
 
 	def _formatted(self):
 		if self.ISSTRING:
@@ -90,9 +82,32 @@ class IP(Protocol):
 		self.ISSTRING = True
 		return self.__sip
 
+
+	def _checksum(self, ip):
+		checksum = 0
+		count	 = 0
+		size = len(ip)
+
+		while size > 1:
+			checksum += int(( str("%02x" % (ord(ip[count]))) + str("%02x" % (ord(ip[count+1]))) ), 16)
+			size -=2
+			count +=2
+		if size:
+			checksum += ord(ip[count])
+
+		checksum = (checksum >> 16) + (checksum & 0xffff)
+		checksum += (checksum >> 16)
+
+		return (~checksum) & 0xffff
+
+
+	######################################################
+	# Properties
+	######################################################
 	@property
 	def raw(self):
 		return self.__ip
+
 
 	@property
 	def src(self):
@@ -106,6 +121,8 @@ class IP(Protocol):
 			raise ValueError, "Malformed value"
 		self.__sip['src'] =  val
 		self.__ip['src'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
+
+
 	@property
 	def dst(self):
 		return self.__sip['dst']
@@ -119,6 +136,7 @@ class IP(Protocol):
 		self.__sip['dst'] = val
 		self.__ip['dst'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
 	
+
 	@property
 	def nextProtocol(self):
 		return self.__sip['protocol']
@@ -132,6 +150,7 @@ class IP(Protocol):
 			if v == val:
 				self.__ip['protocol'] = k
 
+
 	@property
 	def length(self):
 		return self.__ip['h-len']
@@ -143,9 +162,12 @@ class IP(Protocol):
 		self.__ip['h-len'] = value
 		self.__sip['h-len']  = str(value)
 
+
 	@property
 	def iscorrupted(self):
 		return False
+
+
 	def getDstSrc(self):
 		return self.__sip['dst'],self.__sip['src']
 
