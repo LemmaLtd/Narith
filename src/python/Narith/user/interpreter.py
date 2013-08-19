@@ -173,7 +173,7 @@ class RabbitInterpreter(Modules):
                 cprint('[+] Available levels are [Base, Core, High]', 'green')
             elif command[1] == 'modules':
                 if self.level:
-                    if self.level == 'core':
+                    if self.level   == 'core':
                         self.core()
                     elif self.level == 'high':
                         self.high()
@@ -264,12 +264,20 @@ class RabbitInterpreter(Modules):
 	if not self.__pcap or command[1] == 'read':
 		cprint("[>] Initializing pcap module",'blue')
 		self.__pcap = PcapInterface()
+		self.__classifier = None
+		self.__domain     = None
+		self.__local      = None
+		self.__session    = None
 
 	self.__pcap.executer(command[1:])
 	if not self.__classifier:
 		cprint("[>] Classifying raw packets",'blue')
 		self.__classifier = Classifier(self.__pcap.pcap[0].packets[0:])
-		self.__packets = self.__classifier.classify()
+		self.__packets    = self.__classifier.classify()
+		if self.__classifier.corrupted:
+			cprint("[!] corrupted packets: " + str(self.__classifier.corrupted),'red')
+
+
     def domain(self,command):
 	from Narith.user.modules import DomainInterface
 	if not self.__pcap:
@@ -312,7 +320,6 @@ class RabbitInterpreter(Modules):
 		self.__domain = DomainInterface(self.__pcap.pcap[0], self.__packets[0:])
 
 	if not self.__session:
-		import timeit
 		cprint("[>] Initializing session module",'blue')
 		self.__session = SessionInterface(self.__pcap.pcap[0], self.__packets[0:], self.__domain.extractor)
 	self.__session.executer(command[1:])

@@ -243,7 +243,6 @@ class SessionInterface(object):
 		self.__commands[commands[0]](commands[1:])
 
 	def all(self, commands):
-		print self.__se.sessions
 		count = 0
 		for host,session in self.__se.sessions.iteritems():
 			cprint ("Host:\t\t"+session.hostname,'green')
@@ -265,6 +264,7 @@ class SessionInterface(object):
 		cprint("Total sessions: "+str(count),'magenta')
 
 	def www(self, commands):
+		count = 0
 		for session in self.__se.prefix("www"):
 			cprint ("Host:\t\t"+session.hostname,'green')
 			cprint ("Packets no.:\t"+str(session.count),'green')
