@@ -16,7 +16,8 @@ class Eth(Protocol):
 	ISSTRING = False
 	
 	__protocols = {	'\x08\x06' : Arp.Arp,
-			'\x08\x00' : IP.IP
+			'\x08\x00' : IP.IP,
+			'\x00\x00' : None
 			}
 		
 	def __init__(self, binary):
@@ -31,8 +32,11 @@ class Eth(Protocol):
 		t =binary[12:14]
 		# if not then assign them to raw variables
 		# and conduct string initalization
-		assert t in self.__protocols.keys(),"Unsupported protocol"
-		self.__type__ = t
+		if t not in self.__protocols.keys():
+			self.__type__ = '\x00\x00'
+		
+		else:
+			self.__type__ = t
 		self.strDstSrc()
 
 	def rawDstSrc(self):

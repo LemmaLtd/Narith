@@ -9,11 +9,12 @@ brief:  Structure to hold IP info
 
 from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
-from Narith.base.Protocols import Tcp, Udp
+from Narith.base.Protocols import Tcp, Udp, Icmp
 
 class IP(Protocol):
 
 	__protocols = {
+		1		: Icmp.Icmp,
 		6		: Tcp.Tcp,
 		17		: Udp.Udp
 		}
