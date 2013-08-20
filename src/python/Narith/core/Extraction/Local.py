@@ -23,12 +23,17 @@ class LocalInfo(object):
 				if self._isLocal(prot):
 					self.__info['mac'] = packet.get(0).src
 					break
-
+				else:
+					self.__info['mac'] = packet.get(0).dst
 
 	def _hasIP(self, packet):
-		for protocol in packet:
-			if type(protocol).__name__ == 'IP':
-				return protocol
+		b =[type(x).__name__ == 'IP' for x in packet]
+		try:
+			index = b.index(True)
+		except:
+			return False
+		if index >= 0 :
+			return packet.get(index)
 		return False
 
 	def _isLocal(self, prot):

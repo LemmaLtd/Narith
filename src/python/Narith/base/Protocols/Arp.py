@@ -7,6 +7,8 @@ brief	: Structure to hold ARP
 '''
 
 from Narith.base.Packet.Protocol import Protocol
+import threading
+
 class Arp(Protocol):
 
 	'''
@@ -32,6 +34,7 @@ class Arp(Protocol):
 		super(Arp, self).__init__()
 		self.__arp = { 'htype'  : None }
 		self.__sarp = {'htype' : None}
+		self.corrupted = False
 
 		
 		self.__arp['htype'] = int(y[:2].encode('hex'),16)
@@ -57,6 +60,7 @@ class Arp(Protocol):
 		''' Fix string macs '''
 		self.__macFix('src_mac')
 		self.__macFix('dst_mac')
+
 	def __macFix(self,key):
 		tmp = []
 		for i in self.__sarp[key]:

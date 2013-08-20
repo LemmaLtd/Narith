@@ -7,6 +7,8 @@ brief:  Structure to hold Tcp info
 '''
 from Narith.base.Packet.Protocol import Protocol
 from Narith.base.Protocols import Ftp
+import threading
+
 class Tcp(Protocol):
 
 	_flags = {
@@ -23,11 +25,13 @@ class Tcp(Protocol):
 		'fin'  : 0b1,
 		}
 	__protocols = {
-		21 : Ftp.Ftp
+		21 : Ftp.Ftp,
 		}
+
 	def __init__(self,b):
 		super( Tcp, self).__init__()
 		self._tcp = dict()
+		self.corrupted = False
 		
 		self._activeFlags = []
 
