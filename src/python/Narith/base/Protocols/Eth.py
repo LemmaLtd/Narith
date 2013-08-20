@@ -7,7 +7,7 @@ brief:  Structure to hold Ethernet info
 '''
 from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
-from Narith.base.Protocols import IP,Arp
+from Narith.base.Protocols import IP,Arp,IPv6
 class Eth(Protocol):
 
 	# FLAGS
@@ -17,7 +17,8 @@ class Eth(Protocol):
 	
 	__protocols = {	'\x08\x06' : Arp.Arp,
 			'\x08\x00' : IP.IP,
-			'\x00\x00' : None
+			'\x86\xDD' : IPv6.IPv6,
+			'\x00\x00' : None,
 			}
 		
 	def __init__(self, binary):
