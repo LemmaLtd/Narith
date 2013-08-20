@@ -10,6 +10,8 @@ brief:  Structure to hold DNS info
 	register this code in code obfuscation competition
 '''
 from Narith.base.Packet.Protocol import Protocol
+import threading
+
 class Dns(Protocol):
 
 	#raw
@@ -24,7 +26,8 @@ class Dns(Protocol):
 		super( Dns, self).__init__()
 		self.__dns = {'id' : None, 'queries': [],'answers':[]}
 		self.__answers = []
-		self.__corrupted = False
+		self.corrupted = False
+
 		try:
 			self.__dns['id'] 	= int(b[:2].encode('hex'),16)
 			self.__dns['flags'] 	= int(b[2:4].encode('hex'),16)
@@ -35,7 +38,7 @@ class Dns(Protocol):
 			self.__dns['len'] 	= len(b)
 			self.__b = b
 		except:
-			self.__corrupted = True
+			self.corrupted = True
 			return
 
 		queries = b[12:]
@@ -74,7 +77,7 @@ class Dns(Protocol):
 					#SHOULD DO SOMETHING
 					return
 		except:
-			self.__corrupted = True
+			self.corrupted = True
 			return
 
 			queries = queries[12+self.__dns['answers'][i][4]:]
@@ -146,4 +149,4 @@ class Dns(Protocol):
 
 	@property
 	def iscorrupted(self):
-		return self.__corrupted
+		return self.corrupted

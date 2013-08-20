@@ -270,10 +270,15 @@ class RabbitInterpreter(Modules):
 		self.__session    = None
 
 	self.__pcap.executer(command[1:])
+	import threading
 	if not self.__classifier:
 		cprint("[>] Classifying raw packets",'blue')
 		self.__classifier = Classifier(self.__pcap.pcap[0].packets[0:])
-		self.__packets    = self.__classifier.classify()
+		threading.Thread(target=self.__classifier.classify).start()
+		self.__packets    = self.__classifier.packets
+		print id(self.__packets) == id(self.__classifier.packets)
+		cprint("[>] Verifying structured packets",'blue')
+		#self.__corrupted  = threading.Thread(target=self.__classifier.verify).start()
 		if self.__classifier.corrupted:
 			cprint("[!] corrupted packets: " + str(self.__classifier.corrupted),'red')
 

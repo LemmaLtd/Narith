@@ -7,6 +7,8 @@ brief:  Structure to hold UDP info
 '''
 from Narith.base.Packet.Protocol import Protocol
 from Narith.base.Protocols import Dns
+import threading
+
 ''' so far all reading from bytes,
     shall do classmethods soon '''
 class Udp(Protocol):
@@ -19,7 +21,7 @@ class Udp(Protocol):
 	def __init__(self,b):
 		super( Udp, self).__init__()
 		self._udp = {'src':None}
-		self.__corrupted = False
+		self.corrupted = False
 		try:
 			self._udp['src'] = int(b[:2].encode('hex'),16)
 			self._udp['dst'] = int(b[2:4].encode('hex'),16)
@@ -27,6 +29,8 @@ class Udp(Protocol):
 			self._udp['checksum'] = int(b[6:8].encode('hex'),16)
 		except:
 			self.__corrupted = True
+			return
+
 	###################
 	# Properties
 

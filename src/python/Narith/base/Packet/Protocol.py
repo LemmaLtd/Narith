@@ -33,6 +33,10 @@ class Protocol(object):
 		self.prev = None
 		self.next = None
 		return self
+
+	def verify(self):
+		pass
+
 	@property
 	def next(self):
 		return self.__next

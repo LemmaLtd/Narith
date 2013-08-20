@@ -10,6 +10,7 @@ brief:  Structure to hold IP info
 from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
 from Narith.base.Protocols import Tcp, Udp, Icmp
+import threading
 
 class IP(Protocol):
 
@@ -53,8 +54,6 @@ class IP(Protocol):
 					  (( int(bs[18].encode('hex'),16)) << 8)  + (int(bs[19].encode('hex'),16))
 		self.__ip['c-checksum'] = self._checksum(bs[:10] + '\x00\x00' + bs[12:self.__ip['h-len']])
 		self._formatted()
-		if self.__ip['checksum'] != self.__ip['c-checksum']:
-			self.corrupted = True
 
 
 	def _formatted(self):
@@ -101,7 +100,10 @@ class IP(Protocol):
 
 		return (~checksum) & 0xffff
 
-
+	def verify(self):
+		if self.__ip['checksum'] != self.__ip['c-checksum']:
+			self.corrupted = True
+			return
 	######################################################
 	# Properties
 	######################################################
@@ -162,11 +164,6 @@ class IP(Protocol):
 			raise ValueError, "Malformed Value"
 		self.__ip['h-len'] = value
 		self.__sip['h-len']  = str(value)
-
-
-	@property
-	def iscorrupted(self):
-		return False
 
 
 	def getDstSrc(self):

@@ -6,6 +6,7 @@ Date:	19th August 2013
 Brief:	Holds info of Icmp protocol
 '''
 from Narith.base.Packet.Protocol import Protocol
+import threading
 
 class Icmp(Protocol):
 
@@ -38,12 +39,12 @@ class Icmp(Protocol):
 		super(Icmp, self).__init__()
 		self._icmp 	= {}
 		self._icmpp	= {}
+		self.corrupted = False
 
 		self._icmp['type'] 	= int(binary[0  ].encode('hex'),16)
 		self._icmp['code'] 	= int(binary[1  ].encode('hex'),16)
 		self._icmp['checksum']	= int(binary[2:4].encode('hex'),16)
 		_data[self._icmp['type']](binary[4:])
-
 
 	'''
 	Auxiliary Header completers

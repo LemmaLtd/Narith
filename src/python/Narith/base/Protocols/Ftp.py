@@ -7,6 +7,7 @@ brief:  Structure to hold Ftp info
 '''
 
 from Narith.base.Packet.Protocol import Protocol
+import threading
 
 #TODO:
 #determine type using tcp src,dst port
@@ -20,7 +21,8 @@ class Ftp(Protocol):
 				'cmd' :None,
 				'code':None,
 			    }
-		self.__corrupted = False
+
+		self.corrupted = False
 		b.strip("\x0d\x0a")
 		self.__length = len(b)
 		#determine first element type
@@ -41,7 +43,9 @@ class Ftp(Protocol):
 		try:
 			self._ftp['arg'] = " ".join(b.split("\x20")[1:])
 		except:
-			self.__corrupted = True
+			self.corrupted = True
+			return
+
 	##############
 	# properties
 	@property
@@ -60,4 +64,4 @@ class Ftp(Protocol):
 		return self.__length
 	@property
 	def iscorrupted(self):
-		return self.__corrupted
+		return self.corrupted

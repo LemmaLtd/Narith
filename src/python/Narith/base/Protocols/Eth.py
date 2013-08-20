@@ -8,6 +8,8 @@ brief:  Structure to hold Ethernet info
 from Narith.base.Exceptions.Exceptions import *
 from Narith.base.Packet.Protocol import Protocol
 from Narith.base.Protocols import IP,Arp,IPv6
+import threading
+
 class Eth(Protocol):
 
 	# FLAGS
@@ -25,6 +27,8 @@ class Eth(Protocol):
 
 		# Check if in binary stream format or seperated format
 		super( Eth, self).__init__()
+		self.corrupted = False
+
 		if(type(binary) != str):
 			raise ValueError,"Malformed value type"
 
@@ -39,6 +43,7 @@ class Eth(Protocol):
 		else:
 			self.__type__ = t
 		self.strDstSrc()
+
 
 	def rawDstSrc(self):
 		self.__dst__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__sdst__.split(":")]])

@@ -20,7 +20,8 @@ Brief:	Holds info of IPv6 protocol
 '''
 
 from Narith.base.Packet.Protocol import Protocol
-from Narith.base.Protocols import Icmp, Tcp, Udp
+from Narith.base.Protocols import Icmp, Tcp, Udp, Icmpv6
+import threading
 
 class IPv6(Protocol):
 
@@ -29,7 +30,7 @@ class IPv6(Protocol):
 		1	: Icmp.Icmp,
 		6	: Tcp.Tcp,
 		17	: Udp.Udp,
-
+		58	: Icmpv6.Icmpv6
 		}
 	def __init__(self, binary):
 		super(IPv6, self).__init__()
@@ -43,6 +44,7 @@ class IPv6(Protocol):
 		self.__ip['src']	=   self._formatIP(binary[8:24 ])
 		self.__ip['dst']	=   self._formatIP(binary[24:40])
 		self.__ip['len']	= 40
+		self.corrupted = False
 
 		if not self.nextProtocol:
 			self.__ip['data'] = binary[40:]
@@ -56,6 +58,16 @@ class IPv6(Protocol):
 		for i in range(0,16,2):
 			ip.append( binary[i].encode('hex') + binary[i+1].encode('hex') )
 		return ":".join(ip)
+
+	def verify(self):
+		next_len = self.__ip['f-len']
+		real_len = 0
+		node = self.next
+		for node != None:
+			real_len += node.length
+			node = node.next
+		if real_len != next_len:
+			self.corrupted = True
 
 	###################
 	# Properties
