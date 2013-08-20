@@ -63,8 +63,11 @@ class IPv6(Protocol):
 		next_len = self.__ip['f-len']
 		real_len = 0
 		node = self.next
-		for node != None:
-			real_len += node.length
+		while node != None:
+			try:
+				real_len += node.length
+			except:
+				print node
 			node = node.next
 		if real_len != next_len:
 			self.corrupted = True

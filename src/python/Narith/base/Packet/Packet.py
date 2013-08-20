@@ -17,6 +17,7 @@ class Packet(object):
 		self.index = 0
 
 	def __iter__(self):
+		self.index = self.__size
 		return self
 
 	def next(self):
@@ -34,7 +35,7 @@ class Packet(object):
 		e = self.getProtocol(index)
 		e.attachAfter(prot)
 		self.__size += 1
-		self.__size +=1
+		self.__index +=1
 
 	def getProtocol(self,index):
 		element = self.__headAndTail.next

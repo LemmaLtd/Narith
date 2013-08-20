@@ -15,4 +15,6 @@ class ProtData(Protocol):
 	@property
 	def data(self):
 		return self.__data
-
+	@property
+	def length(self):
+		return len(self.__data)

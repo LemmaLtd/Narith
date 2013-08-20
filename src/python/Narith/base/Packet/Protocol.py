@@ -39,14 +39,20 @@ class Protocol(object):
 
 	@property
 	def next(self):
-		return self.__next
+		if type(self.__next).__name__ != 'Protocol':
+			return self.__next
+		else:
+			return None
 	@next.setter
 	def next(self,n):
 		self.__next = n
 
 	@property
 	def prev(self):
-		return self.__prev
+		if type(self.__prev).__name__ != 'Protocol':
+			return self.__prev
+		else:
+			return None
 	@prev.setter
 	def prev(self,p):
 		self.__prev = p

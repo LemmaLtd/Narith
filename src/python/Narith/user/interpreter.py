@@ -276,7 +276,6 @@ class RabbitInterpreter(Modules):
 		self.__classifier = Classifier(self.__pcap.pcap[0].packets[0:])
 		threading.Thread(target=self.__classifier.classify).start()
 		self.__packets    = self.__classifier.packets
-		print id(self.__packets) == id(self.__classifier.packets)
 		cprint("[>] Verifying structured packets",'blue')
 		#self.__corrupted  = threading.Thread(target=self.__classifier.verify).start()
 		if self.__classifier.corrupted:
