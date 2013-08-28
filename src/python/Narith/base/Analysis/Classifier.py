@@ -28,7 +28,7 @@ class Classifier(object):
 			p = p[14:]
 			invalid = 0
 
-			while parent != None or p == '':
+			while parent != None or p != '':
 				packet.attach(parent)
 				prot = parent.nextProtocol
 				if prot == None:
