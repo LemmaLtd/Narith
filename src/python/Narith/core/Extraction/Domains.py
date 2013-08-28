@@ -54,7 +54,7 @@ class DomainExtractor(object):
 			if type(protocol).__name__ == 'Dns':
 				return protocol
 			else:
-				return False
+				continue
 		return False		
 	def _isIP(self,ip):
 		if type(ip) != str:

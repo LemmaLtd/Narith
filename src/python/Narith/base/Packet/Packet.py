@@ -17,15 +17,17 @@ class Packet(object):
 		self.index = 0
 
 	def __iter__(self):
-		self.index = self.__size
+		self.index = 0
 		return self
 
 	def next(self):
-		if self.index == 0:
-			self.index = self.__size
+
+		if self.index == self.__size:
+			self.index = 0
 			raise StopIteration
-		self.index = self.index -1
-		return self.getProtocol(self.index)
+		prot = self.getProtocol(self.index)
+		self.index = self.index + 1
+		return prot
 
 	def insertProtocol(self,index,prot):
 		if (prot == None) or (not issubclass(type(prot),Protocol)):
@@ -35,7 +37,6 @@ class Packet(object):
 		e = self.getProtocol(index)
 		e.attachAfter(prot)
 		self.__size += 1
-		self.__index +=1
 
 	def getProtocol(self,index):
 		element = self.__headAndTail.next
@@ -48,13 +49,11 @@ class Packet(object):
 	def attach(self,prot):
 		self.__headAndTail.attachBefore(prot)
 		self.__size +=1
-		self.index +=1
 
 	def delete(self,index):
 		if (index < 0) or ( index > self.__size):
 			raise IndexError, "Index out of bound"
 		self.__size -=1
-		self.index -=1
 		return self.getProtocol(index).detach().protocol
 
 	def get(self,index):

@@ -92,6 +92,10 @@ class Tcp(Protocol):
 		return self._activeFlags
 
 	@property
+	def sequence(self):
+		return self._tcp['seqn']
+
+	@property
 	def nextProtocol(self):
 		if(self._tcp['src'] < 1024):
 			try:
@@ -110,3 +114,39 @@ class Tcp(Protocol):
 	@property
 	def iscorrupted(self):
 		return False
+
+	##################################
+	# Checkers : Depends on Flags
+	##################################
+	@property
+	def isSyn(self):
+		flags = self.flags
+		if 'syn' in flags:
+			return True
+		else:
+			return False
+
+	@property
+	def isFin(self):
+		flags = self.flags
+		if 'fin' in flags:
+			return True
+		else:
+			return False
+
+	@property
+	def isAck(self):
+		flags = self.flags
+		if 'ack' in flags:
+			return True
+		else:
+			return False
+
+	@property
+	def isPsh(self):
+		flags = self.flags
+		if 'push' in flags:
+			return True
+		else:
+			return False
+
