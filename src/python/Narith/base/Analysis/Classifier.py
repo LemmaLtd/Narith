@@ -32,6 +32,7 @@ class Classifier(object):
 				packet.attach(parent)
 				prot = parent.nextProtocol
 				if prot == None:
+					p = p[parent.length:]
 					break
 				parent = prot(p)
 				p = p[parent.length:]

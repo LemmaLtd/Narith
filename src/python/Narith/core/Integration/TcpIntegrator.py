@@ -35,25 +35,28 @@ class TcpIntegrator(object):
 				Temp.append(segment)
 				continue
 
-			if init:
+			elif init:
 				if segment.srcdst == init.srcdst:
 					if segment.isFinal:
 						init = None
 						Temp.append(segment)
 						self.__assembled.append(Temp)
 						Temp = []
-						continue
 					else:
 						Temp.append(segment)
-
-
+					continue
+			else:
+				self.__assembled.append([segment])
 	def verify(self):
 		import time
 		invalid = 0
 		for thunk in self.__assembled:
 			target_pair = thunk[0].srcdst
 			check_map = map(lambda x: x.srcdst == target_pair, thunk)
-			time.sleep(3)
 			if sum(check_map) != len(check_map):
 				invalid += 1
 		return invalid
+
+	@property
+	def assemblies(self):
+		return self.__assembled
