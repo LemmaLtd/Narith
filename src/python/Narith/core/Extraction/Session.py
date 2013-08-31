@@ -17,6 +17,7 @@ class SessionExtractor(object):
 			self.__count = count
 			self.__bytes = bs
 			self.__host = host
+			self.packets = []
 		@property
 		def hostname(self):
 			return self.__host
@@ -88,6 +89,7 @@ class SessionExtractor(object):
 						times[ip.dst].count +=1
 						times[ip.dst].bytes += record.length
 						times[ip.dst].end = record.time
+						times[ip.dst].packets.append(packet)
 					recidx += 1
 					continue
 
@@ -95,6 +97,7 @@ class SessionExtractor(object):
 				self.__read.append(ip.dst)
 				start = record.time
 				times[ip.dst] = self.Session(ip.dst,cur_host,start,1,record.length)
+				times[ip.dst].packets.append(packet)
 			# is the local a destination address?
 			elif ip.dst == host:
 				if self._alreadyRead(ip.src):
@@ -102,12 +105,14 @@ class SessionExtractor(object):
 						times[ip.src].count +=1
 						times[ip.src].bytes += record.length
 						times[ip.src].end = record.time
+						times[ip.src].packets.append(packet)
 					recidx +=1
 					continue
 				cur_host = self.__de.lookup(ip.src)
 				self.__read.append(ip.src)
 				start = record.time
 				times[ip.src] = self.Session(ip.src,cur_host,start,1,record.length)
+				times[ip.src].packets.append(packet)
 			recidx +=1
 
 		count = 0

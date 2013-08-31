@@ -43,6 +43,9 @@ class Tcp(Protocol):
 		self._tcp['flags']    = int(b[12:14].encode('hex'),16) & 0xfff
 		self._tcp['winsize']  = int(b[14:16].encode('hex'),16)
 		self._tcp['checksum'] = int(b[16:18].encode('hex'),16)
+		#TODO: pad and options
+		remaining = self._tcp['hlen'] - 18
+		self._tcp['pad'] = b[18:18+remaining]
 		#self._tcp['c-checksum'] = self._checksum(b[:16] + '\x00\x00' + b[18:])
 
 

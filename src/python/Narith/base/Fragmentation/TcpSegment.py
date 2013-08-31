@@ -39,7 +39,7 @@ class TcpSegment(object):
 		data = None
 		tcp = None
 		for p in packet:
-			if type(p).__name__ == 'ProtData':
+			if type(p).__name__ == 'ProtData' and len(p.data) > 32:
 				data = p
 			if type(p).__name__ == 'Tcp':
 				tcp = p
