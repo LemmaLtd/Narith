@@ -45,7 +45,6 @@ class Ftp(Protocol):
 		except:
 			self.corrupted = True
 			return
-		print repr(b),self._ftp['type']
 	##############
 	# properties
 	@property
@@ -65,3 +64,9 @@ class Ftp(Protocol):
 	@property
 	def iscorrupted(self):
 		return self.corrupted
+	@property
+	def arg(self):
+		try:
+			return self._ftp['arg']
+		except:
+			return None
