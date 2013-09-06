@@ -28,24 +28,24 @@ class Ftp(Protocol):
 		#determine first element type
 		# 1 slot? definitely request
 		# 1st slot is integer? response code!
-
 		self._ftp['cmd'] = b.split("\x20")[0]
-		if (len(b) - len(self._ftp['cmd'])) < 3:
-			self._ftp['type'] = 'request'
-			return
+#		if (len(b) - len(self._ftp['cmd'])) < 3:
+#			self._ftp['type'] = 'request'
+#			return
 
 		try:
 			self._ftp['code'] = int(self._ftp['cmd'])
-			self._ftp['cmd'] = None
 			self._ftp['type'] = 'response'
+			self._ftp['cmd'] = None
+
 		except ValueError:
-			pass
+			self._ftp['type'] = 'request'
 		try:
 			self._ftp['arg'] = " ".join(b.split("\x20")[1:])
 		except:
 			self.corrupted = True
 			return
-
+		print repr(b),self._ftp['type']
 	##############
 	# properties
 	@property

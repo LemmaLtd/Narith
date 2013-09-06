@@ -32,14 +32,14 @@ class Tcp(Protocol):
 		super( Tcp, self).__init__()
 		self._tcp = dict()
 		self.corrupted = False
-		
+		self.__binary = b
 		self._activeFlags = []
 
 		self._tcp['src']      = int(b[:2   ].encode('hex'),16)
 		self._tcp['dst']      = int(b[2:4  ].encode('hex'),16)
 		self._tcp['seqn']     = int(b[4:8  ].encode('hex'),16)
 		self._tcp['ackn']     = int(b[8:12 ].encode('hex'),16)
-		self._tcp['hlen']     = (int(b[12:13].encode('hex'),16) >> 12) *4
+		self._tcp['hlen']     = (int(b[12:13].encode('hex'),16) >> 4) *4
 		self._tcp['flags']    = int(b[12:14].encode('hex'),16) & 0xfff
 		self._tcp['winsize']  = int(b[14:16].encode('hex'),16)
 		self._tcp['checksum'] = int(b[16:18].encode('hex'),16)
@@ -100,6 +100,9 @@ class Tcp(Protocol):
 
 	@property
 	def nextProtocol(self):
+		if self._tcp['hlen'] == len(self.__binary):
+			return None
+
 		if(self._tcp['src'] < 1024):
 			try:
 				return self.__protocols[self._tcp['src']]
