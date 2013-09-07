@@ -18,15 +18,17 @@ class Ftp(Protocol):
     	super( Ftp, self).__init__()
     	self.__length = len(b)
     	self.corrupted = False
-        if isdata:
-            self.__data = b
-            return
-
     	self._ftp = {   'type':None,
     			'arg' :None,
     			'cmd' :None,
     			'code':None,
     		    }
+
+        if isdata:
+            self.__data = b
+            self._ftp['type'] = 'data'
+            return
+
 
     	b.strip("\x0d\x0a")
     	#determine first element type
