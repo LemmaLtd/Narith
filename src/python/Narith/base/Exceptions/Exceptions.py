@@ -7,21 +7,21 @@ brief: Protocols Exceptions
 
 
 class ProtError(Exception):
-	''' Protocol Exception '''
-	pass
+    ''' Protocol Exception '''
+    pass
 
 class MacAddrError(ProtError):
-	''' Protocol Exception '''
-	pass
+    ''' Protocol Exception '''
+    pass
 
 class BytesStreamError(ProtError):
-	''' Protocol Exception '''
-	pass
+    ''' Protocol Exception '''
+    pass
 
 class PcapError(Exception):
-	''' Pcap file Exception '''
-	pass
+    ''' Pcap file Exception '''
+    pass
 
 class PcapStructureError(PcapError):
-	''' Pcap file Exception '''
-	pass
+    ''' Pcap file Exception '''
+    pass
