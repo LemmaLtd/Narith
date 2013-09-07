@@ -14,17 +14,21 @@ import threading
 
 class Ftp(Protocol):
 
-    def __init__(self,b):
+    def __init__(self,b, isdata=False):
     	super( Ftp, self).__init__()
+    	self.__length = len(b)
+    	self.corrupted = False
+        if isdata:
+            self.__data = b
+            return
+
     	self._ftp = {   'type':None,
     			'arg' :None,
     			'cmd' :None,
     			'code':None,
     		    }
 
-    	self.corrupted = False
     	b.strip("\x0d\x0a")
-    	self.__length = len(b)
     	#determine first element type
     	# 1 slot? definitely request
     	# 1st slot is integer? response code!
@@ -45,6 +49,10 @@ class Ftp(Protocol):
     	except:
     		self.corrupted = True
     		return
+
+    @classmethod
+    def FtpData(cls, binary):
+	return cls(binary, True)
     ##############
     # properties
     @property
@@ -70,3 +78,8 @@ class Ftp(Protocol):
     		return self._ftp['arg']
     	except:
     		return None
+    @property
+    def data(self):
+        if hasattr(self,'__data'):
+            return self.__data
+        return None
