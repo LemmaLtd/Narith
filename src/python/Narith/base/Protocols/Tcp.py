@@ -101,6 +101,11 @@ class Tcp(Protocol):
 
     @property
     def nextProtocol(self):
+	trailer = map(lambda x: x == '\x00',self.__binary[self.length:])
+
+	if trailer.index(False) == -1:
+		return None
+
     	if self._tcp['hlen'] == len(self.__binary):
     		return None
 
