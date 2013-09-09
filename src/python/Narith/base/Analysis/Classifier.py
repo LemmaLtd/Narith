@@ -127,4 +127,3 @@ class Classifier(object):
     #                protocol.notify()
         self.__flag = True
         self.verify()
-        self.pool.kill()
