@@ -55,6 +55,7 @@ class Ftp(Protocol):
     @classmethod
     def FtpData(cls, binary):
 	return cls(binary, True)
+
     ##############
     # properties
     @property
@@ -82,6 +83,7 @@ class Ftp(Protocol):
     		return None
     @property
     def data(self):
-        if hasattr(self,'__data'):
+        try:
             return self.__data
-        return None
+        except:
+            return None
