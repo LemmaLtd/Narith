@@ -15,7 +15,7 @@ class PasswdExtractor(object):
         def __init__(self, tupl):
             self.__tupl = list(tupl)
             if len(self.__tupl) < 4:
-                raise(IndentationError, "Invalid arugment or list element type")
+                raise(TypeError, "Invalid arugment or list element type")
 
         @property
         def user(self):
@@ -36,7 +36,7 @@ class PasswdExtractor(object):
     def __init__(self, packets):
 
         if type(packets) != list and packets != [] and type(packets[0]) != Packet:
-            raise TypeError("Invalid arugment or list element type")
+            raise(TypeError, "Invalid arugment or list element type")
         self.__packets = packets
         self.__data = []
         self.__ftps = []
