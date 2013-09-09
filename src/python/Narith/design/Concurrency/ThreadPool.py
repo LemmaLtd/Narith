@@ -49,7 +49,6 @@ class TaskPool(object):
             del wl
             
     def add_task(self, task, args=[]):
-	print "WORKS",len(self.works)
         self.lock.acquire()
         while self.current_size == self.max:
             self.empty.wait()
