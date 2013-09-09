@@ -7,7 +7,7 @@ Brief:    Lightweight Thread Pool implementation
 import threading
 
 class TaskPool(object):
-    max = 16
+    max = 1024
     
     class Work(object):
         def __init__(self, routine, args):
@@ -59,4 +59,3 @@ class TaskPool(object):
         self.current_size += 1
 
         self.lock.release()
-        

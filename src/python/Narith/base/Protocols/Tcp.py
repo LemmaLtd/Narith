@@ -103,7 +103,7 @@ class Tcp(Protocol):
     def nextProtocol(self):
 	trailer = map(lambda x: x == '\x00',self.__binary[self.length:])
 
-	if trailer.index(False) == -1:
+	if trailer.count(True) == len(trailer):
 		return None
 
     	if self._tcp['hlen'] == len(self.__binary):
