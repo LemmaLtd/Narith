@@ -5,6 +5,7 @@ Date:    9th September 2013
 Brief:    Lightweight Thread Pool implementation
 '''
 import threading
+from Queue import Queue
 
 class TaskPool(object):
     max = 1024
@@ -21,7 +22,7 @@ class TaskPool(object):
          self.non_empty		= threading.Condition(self.lock)
          self.empty		= threading.Condition(self.lock)
          self.threads		= []
-         self.works		= []
+         self.works		= Queue()
 
          for _ in range(self.size):
              self.threads.append(threading.Thread(target=self.pool_thread))
@@ -34,9 +35,8 @@ class TaskPool(object):
             while self.current_size == 0:
                 self.non_empty.wait()
 
-            wl = self.works[0]
+            wl = self.works.get()
             self.current_size -=1
-            self.works = self.works[1:]
             if self.current_size == (self.max - 1):
                 self.empty.notifyAll()
             
@@ -53,7 +53,7 @@ class TaskPool(object):
         while self.current_size == self.max:
             self.empty.wait()
         wl = self.Work(task, args)
-        self.works.append(wl)
+        self.works.put(wl)
         if self.current_size == 0:
             self.non_empty.notify()
         self.current_size += 1
