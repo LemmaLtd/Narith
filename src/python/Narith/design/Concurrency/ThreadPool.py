@@ -23,14 +23,22 @@ class TaskPool(object):
          self.empty		= threading.Condition(self.lock)
          self.threads		= []
          self.works		= Queue()
+         self.terminate		= False
 
          for _ in range(self.size):
              self.threads.append(threading.Thread(target=self.pool_thread))
          for x in self.threads:
              x.start()
+    def alive(self):
+	return sum(map(lambda x: x.isAlive(), self.threads))
+
+    def kill(self):
+        self.terminate = True
+        if self.alive():
+           self.add_task(self.kill)
 
     def pool_thread(self):
-        while True:
+        while not self.terminate:
             self.lock.acquire()
             while self.current_size == 0:
                 self.non_empty.wait()

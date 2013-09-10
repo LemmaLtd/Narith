@@ -64,6 +64,7 @@ class Classifier(object):
         for p in raw:
             self.single(p, index)
         self.alive.pop()
+	exit()
 
     def verify(self):
         count = 0
@@ -98,6 +99,9 @@ class Classifier(object):
     def corrupted(self):
         return self.__corrupted
 
+    def classify_exit(self):
+        exit()
+
     def classify(self):
         count = 0
         corrupted = 0
@@ -127,3 +131,4 @@ class Classifier(object):
     #                protocol.notify()
         self.__flag = True
         self.verify()
+	self.pool.kill()
