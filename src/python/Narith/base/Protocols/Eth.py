@@ -42,33 +42,12 @@ class Eth(Protocol):
     	
     	else:
     		self.__type__ = t
-    	self.strDstSrc()
 
 
     def rawDstSrc(self):
     	self.__dst__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__sdst__.split(":")]])
     	self.__src__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__ssrc__.split(":")]])
     	return (self.__dst__, self.__src__)
-
-
-    #return pair or (dst,src) in seperated representation
-    def strDstSrc(self):
-    	if self.ISSTRING:
-    		return (self.__sdst__, self.__ssrc__)
-    	dst = ""
-    	src = ""
-    	for c in self.__dst__:
-    		dst += c.encode('hex')
-    		dst += ":"
-    	dst = dst[:len(dst)-1]
-    	for c in self.__src__:
-    		src += c.encode('hex')
-    		src += ":"
-    	src = src[:len(src)-1]
-    	self.__sdst__ = dst
-    	self.__ssrc__ = src
-    	self.ISSTRING = True
-    	return (dst,src)
 
     ############################
     # Boolean Packet type checks
@@ -82,7 +61,13 @@ class Eth(Protocol):
     # Properties
     @property
     def dst(self):
-    	return self.__sdst__
+        dst = ""
+    	for c in self.__dst__:
+    		dst += c.encode('hex')
+    		dst += ":"
+    	dst = dst[:len(dst)-1]
+    	return dst
+
     @dst.setter
     def dst(self,val):
     	if type(val) != str:
@@ -94,7 +79,12 @@ class Eth(Protocol):
 
     @property
     def src(self):
-    	return self.__ssrc__
+        src = ""
+    	for c in self.__src__:
+    		src += c.encode('hex')
+    		src += ":"
+    	src = src[:len(src)-1]
+    	return src
 
     @src.setter
     def src(self,val):

@@ -30,7 +30,6 @@ class IP(Protocol):
     def __init__(self, bs):
     	super(IP, self).__init__()
     	self.__ip 	= {}
-    	self.__sip 	= {}
     	self.ISSTRING   = False
 
     	# if inserted bytes less than 20 bytes then its not ip
@@ -54,34 +53,8 @@ class IP(Protocol):
     	self.__ip['dst']	= (( int(bs[16].encode('hex'),16)) << 24) + ((int(bs[17].encode('hex'),16)) << 16) +\
     				  (( int(bs[18].encode('hex'),16)) << 8)  + (int(bs[19].encode('hex'),16))
     	self.__ip['c-checksum'] = self._checksum(bs[:10] + '\x00\x00' + bs[12:self.__ip['h-len']])
-    	self._formatted()
 
 
-    def _formatted(self):
-    	if self.ISSTRING:
-    		return self.__sip
-    	#on the contrary, iterators seems handy here \o/
-    	
-    	for i,v in self.__ip.iteritems():
-    		# are we formatting protocol?
-    		if( i == 'protocol'):
-    			if v not in self.__protocols:
-    				self.__sip[i] = None
-    				continue
-    			self.__sip[i] = self.__protocols[v]
-    			continue
-    		elif ((i == 'src') or (i == 'dst')) and (self.__ip['version'] == 4):
-    			self.__sip[i]= ""
-
-    			for l in range(0,4)[::-1]:
-    				self.__sip[i] += str((self.__ip[i] >> l*8) & 0xff) + "."
-    			self.__sip[i] = self.__sip[i][:len(self.__sip[i])-1]
-
-    			continue
-    		else:
-    			self.__sip[i] = str(v)
-    	self.ISSTRING = True
-    	return self.__sip
 
 
     def _checksum(self, ip):
@@ -115,7 +88,11 @@ class IP(Protocol):
 
     @property
     def src(self):
-    	return self.__sip['src']
+        src = ""
+    	for l in range(0,4)[::-1]:
+    		src += str((self.__ip['src'] >> l*8) & 0xff) + "."
+        src = src[:len(src)-1]
+    	return src
 
     @src.setter
     def src(self, val):
@@ -123,13 +100,16 @@ class IP(Protocol):
     		raise ValueError,"Malformed value"
     	elif (len(val.split(".")) != 4):
     		raise ValueError, "Malformed value"
-    	self.__sip['src'] =  val
     	self.__ip['src'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
 
 
     @property
     def dst(self):
-    	return self.__sip['dst']
+        dst = ""
+    	for l in range(0,4)[::-1]:
+    		dst += str((self.__ip['dst'] >> l*8) & 0xff) + "."
+        dst = dst[:len(dst)-1]
+    	return dst
 
     @dst.setter
     def dst(self, val):
@@ -137,19 +117,20 @@ class IP(Protocol):
     		raise ValueError,"Malformed value"
     	elif (len(val.split(".")) != 4):
     		raise ValueError,"Malformed value"
-    	self.__sip['dst'] = val
     	self.__ip['dst'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
     
 
     @property
     def nextProtocol(self):
-    	return self.__sip['protocol']
+        prot = None
+    	if self.__ip['protocol'] not in self.__protocols:
+    		return None
+    	return self.__protocols[self.__ip['protocol']]
 
     @nextProtocol.setter
     def nextProtocol(self,val):
     	if val not in self.__protocols.values():
     		raise ValueError,"Invalid Protocol"
-    	self.__sip['protocol'] = val
     	for k,v in self.__protocols.iteritems():
     		if v == val:
     			self.__ip['protocol'] = k
@@ -164,11 +145,10 @@ class IP(Protocol):
     	if type(value) != int:
     		raise ValueError, "Malformed Value"
     	self.__ip['h-len'] = value
-    	self.__sip['h-len']  = str(value)
 
 
     def getDstSrc(self):
-    	return self.__sip['dst'],self.__sip['src']
+    	return self.dst,self.src
 
     def getRawDstSrc(self):
     	return self.__ip['dst'],self.__ip['src']
