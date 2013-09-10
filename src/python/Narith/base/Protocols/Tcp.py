@@ -26,6 +26,7 @@ class Tcp(Protocol):
     	}
     __protocols = {
     	21 : Ftp.Ftp,
+	20 : Ftp.Ftp.FtpData,
     	}
 
     def __init__(self,b):
@@ -100,6 +101,11 @@ class Tcp(Protocol):
 
     @property
     def nextProtocol(self):
+	trailer = map(lambda x: x == '\x00',self.__binary[self.length:])
+
+	if trailer.count(True) == len(trailer):
+		return None
+
     	if self._tcp['hlen'] == len(self.__binary):
     		return None
 
