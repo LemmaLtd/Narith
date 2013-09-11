@@ -26,35 +26,40 @@ class Classifier(object):
         self.pool = TaskPool(4)
         self.alive = []
 
-    def single(self, packet, index):
+
+
+    def par_classify(self, factor):
+
+       def single(self, packet, index):
         pack = Packet()
         parent = Eth.Eth(packet[:14])
         packet = packet[14:]
         while parent != None or packet != '':
-                pack.attach(parent)
-                prot = parent.nextProtocol
-                if prot == None:
-                    packet = packet[parent.length:]
-                    break
-                parent = prot(packet)
+             pack.attach(parent)
+             prot = parent.nextProtocol
+             if prot == None:
                 packet = packet[parent.length:]
+                break
+             parent = prot(packet)
+             packet = packet[parent.length:]
         self.__packets[index].append(pack)
         if packet != '':
             pack.attach(ProtData.ProtData(packet))
 
-    def par_classify(self, factor):
+
+
         unit = len(self.__rawPackets) / factor
         for x in xrange(factor):
             self.__packets.append([])
-
         for x in xrange(factor):
             r = self.__rawPackets[unit * x: unit * (x + 1)]
             self.pool.add_task(self.__classify, (r, x))
 
-        time.sleep(1)
+        time.sleep(2)
         while self.alive:
             continue
         self.__packets = sum(self.__packets, [])
+        self.pool.kill()
 
     def __classify(self, ri):
         raw, index = ri
@@ -64,7 +69,6 @@ class Classifier(object):
         for p in raw:
             self.single(p, index)
         self.alive.pop()
-	exit()
 
     def verify(self):
         count = 0
@@ -99,8 +103,9 @@ class Classifier(object):
     def corrupted(self):
         return self.__corrupted
 
-    def classify_exit(self):
-        exit()
+    @property
+    def raw(self):
+        return self.__rawPackets
 
     def classify(self):
         count = 0

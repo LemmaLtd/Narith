@@ -34,18 +34,16 @@ class PasswdExtractor(object):
             return self.__tupl[3]
 
     def __init__(self, packets):
-
         if type(packets) != list and packets != [] and type(packets[0]) != Packet:
             raise(TypeError, "Invalid arugment or list element type")
         self.__packets = packets
         self.__data = []
         self.__ftps = []
-
     def extract(self):
 
         for packet in self.__packets:
             ftp = self.__hasFtp(packet)
-            if not ftp or ftp.iscorrupted:
+            if not ftp or ftp.iscorrupted or ftp.type == 'data':
                 continue
 
             else:
@@ -56,7 +54,7 @@ class PasswdExtractor(object):
                     prev = self.__ftps[self.__ftps.index(ftp) - 1]
                     if prev.type == 'request' and 'PASS' in prev.cmd:
                         passwd = prev.arg.replace('\r\n', '')
-                        prev_prev = self.__ftps[self.__ftps.index(prev) - 2]
+                        prev_prev = self.__ftps[self.__ftps.index(prev) - 3]
                         if prev_prev.type == 'request' and 'USER' in prev_prev.cmd:
                             user = prev_prev.arg.replace('\r\n', '')
                             self.__data.append(self.Token((user, passwd, remote, local)))

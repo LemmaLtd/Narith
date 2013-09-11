@@ -76,7 +76,7 @@ class Tcp(Protocol):
 
     @property
     def src(self):
-        return int(self._binary[:2].encode('hex'), 16)
+        return int(self.__binary[:2].encode('hex'), 16)
 
     @src.setter
     def src(self, val):
@@ -117,23 +117,19 @@ class Tcp(Protocol):
     @property
     def nextProtocol(self):
         trailer = map(lambda x: x == '\x00', self.__binary[self.length:])
-
-        if trailer.count(True) == len(trailer):
+        if trailer.count(True) == len(trailer) and len(trailer) != 0:
             return None
 
-            if self.length == len(self.__binary):
+        if(self.src < 1024):
+            try:
+                return self.__protocols[self.src]
+            except:
                 return None
-
-            if(self.src < 1024):
-                try:
-                    return self.__protocols[self.src]
-                except:
-                    return None
-            else:
-                try:
-                    return self.__protocols[self.dst]
-                except:
-                    return None
+        else:
+            try:
+                return self.__protocols[self.dst]
+            except:
+                return None
 
     @property
     def length(self):
