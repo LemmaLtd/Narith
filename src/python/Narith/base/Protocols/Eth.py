@@ -32,37 +32,43 @@ class Eth(Protocol):
     	if(type(binary) != str):
     		raise ValueError,"Malformed value type"
 
-    	self.__dst__ = binary[:6]
-    	self.__src__ = binary[6:12]
-    	t =binary[12:14]
-    	# if not then assign them to raw variables
-    	# and conduct string initalization
-    	if t not in self.__protocols.keys():
-    		self.__type__ = '\x00\x00'
-    	
-    	else:
-    		self.__type__ = t
+        self.__binary = binary
 
-
-    def rawDstSrc(self):
-    	self.__dst__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__sdst__.split(":")]])
-    	self.__src__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__ssrc__.split(":")]])
-    	return (self.__dst__, self.__src__)
 
     ############################
     # Boolean Packet type checks
     def isIP(self):
-    	return self.__protocols[self.__type__] == 'ip'
+    	return self.__protocols[self.type] == 'ip'
     def isARP(self):
-    	return self.__protocols[self.__type__] == 'arp'
+    	return self.__protocols[self.type] == 'arp'
 
 
     ############################
     # Properties
+
+    @property
+    def type(self):
+        t = self.__binary[12:14]
+        if t not in self.__protocols.keys():
+            return '\x00\x00'
+        return t
+
+    @type.setter
+    def type(self, value):
+        self.__binary = self.__binary[:12] + value
+
+    @property
+    def rawDst(self):
+        return self.__binary[:6]
+
+    @rawDst.setter
+    def rawDst(self, value):
+        self.__binary = value + self.__binary[6:14]
+
     @property
     def dst(self):
         dst = ""
-    	for c in self.__dst__:
+    	for c in self.rawDst:
     		dst += c.encode('hex')
     		dst += ":"
     	dst = dst[:len(dst)-1]
@@ -74,13 +80,20 @@ class Eth(Protocol):
     		raise ValueError,"Malformed Value"
     	elif len(val.split(":")) != 6:
     		raise ValueError,"Malformed Value"
-    	self.__sdst__ = val
-    	self.__dst__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__sdst__.split(":")]])
+    	self.rawDst = "".join([chr(j) for j in  [int(c,base=16) for c in self.__sdst__.split(":")]])
+
+    @property
+    def rawSrc(self):
+        return self.__binary[6:12]
+
+    @rawSrc.setter
+    def rawSrc(self, value):
+        self.__binary = self.__binary[:6] + value + self.__binary[12:14]
 
     @property
     def src(self):
         src = ""
-    	for c in self.__src__:
+    	for c in self.rawSrc:
     		src += c.encode('hex')
     		src += ":"
     	src = src[:len(src)-1]
@@ -92,19 +105,19 @@ class Eth(Protocol):
     		raise ValueError,"Malformed Value"
     	elif len(val.split(":")) != 6:
     		raise ValueError, "Malformed Value"
-    	self.__ssrc__ = val
-    	self.__src__ = "".join([chr(j) for j in  [int(c,base=16) for c in self.__ssrc__.split(":")]])
+    	self.rawSrc = "".join([chr(j) for j in  [int(c,base=16) for c in self.__ssrc__.split(":")]])
 
     @property
     def nextProtocol(self):
-    	return self.__protocols[self.__type__]
+    	return self.__protocols[self.type]
+
     @nextProtocol.setter
     def nextProtocol(self,value):
     	if( value not in self.__protocols.values()):
     		raise ValueError,"Unsupported protocol"
     	for k,v in self.__protocols.iteritems():
     		if v == value:
-    			self.__type__ = k
+    			self.type = k
 
     @property
     def length(self):
