@@ -6,7 +6,7 @@ Date:   28th July 2013
 brief:  Structure to hold Tcp info
 '''
 from Narith.base.Packet.Protocol import Protocol
-from Narith.base.Protocols import Ftp
+from Narith.base.Protocols import Ftp, Http
 import threading
 
 
@@ -29,6 +29,7 @@ class Tcp(Protocol):
     __protocols = {
         21: Ftp.Ftp,
         20: Ftp.Ftp.FtpData,
+        80: Http.Http,
         }
 
     def __init__(self, b):
