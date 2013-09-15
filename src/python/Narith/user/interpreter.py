@@ -237,16 +237,18 @@ class RabbitInterpreter(Modules):
 		self.update_high(0)
 
     def update_core(self, flag):
-	if flag:
-	   self.commands['pcap']   = self.pcap
-	   self.commands['local']  = self.local
-	   self.commands['domain'] = self.domain
-	   self.commands['session'] = self.session
-	else:
-	   self.commands['pcap']   = None
-	   self.commands['local']  = None
-	   self.commands['domain'] = None
-	   self.commands['session']= None
+        if flag:
+            self.commands['pcap']   = self.pcap
+            self.commands['local']  = self.local
+            self.commands['domain'] = self.domain
+            self.commands['browse'] = self.browse
+            self.commands['session'] = self.session
+        else:
+            self.commands['pcap']   = None
+            self.commands['local']  = None
+            self.commands['domain'] = None
+            self.commands['browse'] = None
+            self.commands['session']= None
 
     def update_base(self, flag):
 	pass
@@ -293,6 +295,17 @@ class RabbitInterpreter(Modules):
 		self.__domain = DomainInterface(self.__pcap.pcap[0], self.__packets[0:])
 
 	self.__domain.executer(command[1:])
+
+    def browse(self, command):
+        from Narith.user.modules import BrowseInterface
+
+        if not self.__pcap:
+            cprint('[!] No file read','red')
+            return
+
+        self.__domain = BrowseInterface(self.__pcap.pcap[0], self.__packets[0:])
+        self.__domain.executer(command[1:])
+
 
 
     def local(self,command):
