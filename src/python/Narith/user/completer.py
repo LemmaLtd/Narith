@@ -60,6 +60,10 @@ commands = {
 		'modules'	:None,
 		},
 	'help': None,
+    'browse':{
+        'requests': None,
+        'host' : None,
+        },
 	'info': interpreter.all_modules,
 	'set' :
 		{

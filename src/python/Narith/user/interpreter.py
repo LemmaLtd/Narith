@@ -256,7 +256,7 @@ class RabbitInterpreter(Modules):
 	pass
 
 
-    ''' 
+    '''
      Module interfaces:
 	Each module is responsible for processing its arguments
 
@@ -303,8 +303,8 @@ class RabbitInterpreter(Modules):
             cprint('[!] No file read','red')
             return
 
-        self.__domain = BrowseInterface(self.__pcap.pcap[0], self.__packets[0:])
-        self.__domain.executer(command[1:])
+        self.__browser = BrowseInterface(self.__pcap.pcap[0], self.__packets[0:])
+        self.__browser.executer(command[1:])
 
 
 
