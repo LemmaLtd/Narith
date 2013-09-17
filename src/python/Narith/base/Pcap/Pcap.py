@@ -70,8 +70,8 @@ class Pcap(object):
         def __init__(self, binary, parse):
             self.__timestampSec     = int(parse(binary[:4   ]).encode('hex'),16)
             self.__timeSec         = datetime.datetime.fromtimestamp(self.__timestampSec).strftime("%y-%m-%d %H:%M:%S")
-            self.__timestampMicro    = int(parse(binary[4:8  ]).encode('hex'),16)
-            self.__timeMicro    = datetime.datetime.fromtimestamp(self.__timestampMicro).strftime("%y-%m-%d %H:%M:%S:%U")
+            #self.__timestampMicro    = int(parse(binary[4:8  ]).encode('hex'),16)
+            #self.__timeMicro    = datetime.datetime.fromtimestamp(self.__timestampMicro).strftime("%y-%m-%d %H:%M:%S:%U")
             self.__includedLength    = int(parse(binary[8:12 ]).encode('hex'),16)
             self.__originalLength    = int(parse(binary[12:16]).encode('hex'),16)
 
@@ -88,6 +88,7 @@ class Pcap(object):
         @property
         def timestamp(self):
             return self.__timestampSec
+
     def __init__(self, filename=None,binary=None):
         self.__packet_headers = []
         self.__packets = []

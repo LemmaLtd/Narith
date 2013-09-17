@@ -47,15 +47,8 @@ class Arp(Protocol):
         self.__arp['dst_mac'] = y[18:24]
         self.__arp['dst_ip'] = y[24:28]
 
-        self.__sarp['htype'] = self.__htypes[self.__arp['htype']]
-        self.__sarp['ptype'] = self.__ptypes[self.__arp['ptype']]
-        self.__sarp['hsize'] = str(self.__arp['hsize'])
-        self.__sarp['psize'] = str(self.__arp['psize'])
-        self.__sarp['opcode'] = self.__opcodes[self.__arp['opcode']]
         self.__sarp['src_mac'] = map(hex, map(ord, self.__arp['src_mac']))
-        self.__sarp['src_ip'] = ".".join( map(str, map(ord, self.__arp['src_ip'])))
         self.__sarp['dst_mac'] = map(hex,map(ord,self.__arp['dst_mac']))
-        self.__sarp['dst_ip'] = ".".join(map(str,map(ord,self.__arp['dst_ip'])))
 
         ''' Fix string macs '''
         self.__macFix('src_mac')
@@ -70,9 +63,11 @@ class Arp(Protocol):
         self.__sarp[key] = ":".join("".join(tmp).split("0x")[1:])
     ##########################
     # Properties
+
     @property
     def src(self):
         return self.src_mac,self.src_ip
+
     @src.setter
     def src(self,val):
         if type(val) != tuple:
@@ -96,13 +91,12 @@ class Arp(Protocol):
 
     @property
     def src_ip(self):
-        return self.__sarp['src_ip']
+        return ".".join( map(str, map(ord, self.__arp['src_ip'])))
 
     @src_ip.setter
     def src_ip(self,val):
         if (type(val) != str) or ( len(val.split(".")) != 4):
             raise ValueError, "Malformed value"
-        self.__sarp['src_ip'] = val
         self.__arp['src_ip'] = "".join([chr(int(j)) for j in val.split(".")])
 
 
@@ -132,7 +126,7 @@ class Arp(Protocol):
 
     @property
     def target_ip(self):
-        return self.__sarp['dst_ip']
+        return ".".join( map(str, map(ord, self.__arp['dst_ip'])))
 
     @target_ip.setter
     def target_ip(self,val):
@@ -144,16 +138,16 @@ class Arp(Protocol):
 
     @property
     def hardware_type(self):
-        return self.__sarp['htype']
+        return self.__htypes[self.__arp['htype']]
+
     @property
     def opcode(self):
-        return self.__sarp['opcode']
+        return self.__opcodes[self.__arp['opcode']]
 
     @opcode.setter
     def opcode(self,val):
         if (type(val) is not str) or val not in self.__opcodes.values():
             raise ValueError, "Malformed value"
-        self.__sarp['opcode'] = val
         for k,v in self.__opcodes.iteritems():
             if v == val:
                 self.__arp['opcode'] = k

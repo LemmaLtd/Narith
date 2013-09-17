@@ -23,7 +23,8 @@ class Modules(object):
 	self.base_modules = {}
 	self.core_modules = {'pcap': self.pcap_module,
 	 'local': self.local_module,
-	 'domain': self.domain_module}
+	 'domain': self.domain_module,
+	 'browse': self.browse_module}
 	self.all_modules = {}
 	all_modules = [ x for x in self.core_modules ] + [ x for x in self.base_modules ] + [ x for x in self.high_modules ]
 	for module in all_modules:
@@ -44,6 +45,17 @@ class Modules(object):
 	print '     www                         prints out all remote hostnames'
 	print '     all                         prints all occurances of all hostnames during session'
 	print '     search <infix>              reads a substring and searches for domains that match'
+    def browse_module(self):
+	print ''
+	cprint('Domains module', 'green')
+	print '=======================\n'
+	print '     www                         prints out all remote hostnames'
+	print '     all                         prints all occurances of all hostnames during session'
+	print '     search <infix>              reads a substring and searches for domains that match'
+
+	# def browse_module(self):
+	# 	print ''
+	# 	cprint ('HTTP MODULE', 'green')
 
     def local_module(self):
 	print ''
@@ -124,7 +136,7 @@ class PcapInterface(object):
 				cprint('[*] file %s: %d packets' % (p.file,p.length),'green')
 			else:
 				cprint('[!] Invalid file','red')
-				
+
 	def interface(self, files):
 		for p in self.__pcap:
 			try:
@@ -156,7 +168,7 @@ class DomainInterface(object):
 		self.__pcap = pcap
 		self.__packets = packets
 		self.__de = DomainExtractor(self.__packets)
-		
+
 	def executer(self, commands):
 		if commands[0] not in self.__commands:
 			return
@@ -277,4 +289,79 @@ class SessionInterface(object):
 
 	def protocol(self, commands):
 			pass
+
+class BrowseInterface(object):
+
+	def __init__(self, pcap, packets):
+		from Narith.base.Analysis.Classifier import Classifier
+		from Narith.core.Extraction.Browse import BrowseExtractor
+
+		self.__commands = \
+		{
+		'requests'	: self.requests,
+		'host'	: self.requestSelect,
+		
+		# 'search': self.search,
+		}
+		# self.__domain = None
+		self.__pcap = pcap
+		self.__packets = packets
+		self.__http = BrowseExtractor(self.__packets)
+		r = 0
+		for i, j in self.__http.requests.iteritems():
+			r += 1
+			self.__http.requests[i]['index'] = r
+
+
+	def executer(self, commands):
+		if commands[0] not in self.__commands:
+			return
+		self.__commands[commands[0]](commands[1:])
+
+	def requests(self, c):
+		import time
+		cprint ('[+] Found %s requests to %s hosts...' % ( str(sum(x['times'] for x in self.__http.requests.values())), str(len(self.__http.requests.keys()))), 'blue') 
+		time.sleep(1)
+		# r = 0
+		for i, j in self.__http.requests.iteritems():
+			# r += 1
+			# self.__http.requests[i]['index'] = r
+			cprint ('[%s]' % j['index'] + i, 'green')
+			h = '  %s request(s)' % str(j['times'])
+			nonVerbalKeys = ['times', 'index']
+			for v in j:
+				if v in nonVerbalKeys:
+					continue
+				h += ' | '
+				h += v + ': ' + str(j[v])
+			cprint(h, 'yellow')
+
+	def requestSelect(self, commands):
+		import time
+		# print commands
+		host = commands[0]
+		# print host
+		for i, j in self.__http.requests.iteritems():
+			if j['index'] == int(host):
+				key = i
+				break
+		try:
+			key
+		except:
+			cprint ('Invalid host index', 'red')
+			return
+
+		cprint ('[+] %s request(s) to %s' % (self.__http.requests[key]['times'], key), 'blue')
+		nonVerbalKeys = ['times', 'index']
+		h = '[+] '
+		for v in self.__http.requests[key]:
+			if v in nonVerbalKeys:
+				continue
+			# h += ' | '
+			h += v + ': ' + str(self.__http.requests[key][v])
+			h += ' | '
+
+		cprint (h, 'green')
+
+
 

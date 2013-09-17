@@ -12,14 +12,15 @@ from Narith.base.Packet.Protocol import Protocol
 from Narith.base.Protocols import Tcp, Udp, Icmp, Igmp
 import threading
 
+
 class IP(Protocol):
 
     __protocols = {
-    	1		: Icmp.Icmp,
-    	2		: Igmp.Igmp,
-    	6		: Tcp.Tcp,
-    	17		: Udp.Udp
-    	}
+        1:  Icmp.Icmp,
+        2:  Igmp.Igmp,
+        6:  Tcp.Tcp,
+        17: Udp.Udp
+        }
 
     #############################################
     # Version, Header Length, DSF, Total Length
@@ -28,147 +29,136 @@ class IP(Protocol):
     # and I like the dictionary more..
     ##############################################
     def __init__(self, bs):
-    	super(IP, self).__init__()
-    	self.__ip 	= {}
-    	self.__sip 	= {}
-    	self.ISSTRING   = False
+        super(IP, self).__init__()
+        self.__ip	= {}
 
-    	# if inserted bytes less than 20 bytes then its not ip
-    	if len(bs) < 20:
-    		raise BytesStreamError,"Given bytes array is too short"
+        # if inserted bytes less than 20 bytes then its not ip
+        if len(bs) < 20:
+            raise BytesStreamError("Given bytes array is too short")
 
-    	#pcap files are in big endian, too bad that iterator doesn't seem handy
-    	self.corrupted = False
-    	self.__ip['version'] 	= (  int(bs[0].encode( 'hex'),16) & 0xf0) >> 4
-    	self.__ip['h-len']   	= (  int(bs[0].encode( 'hex'),16) & 0x0f)*4
-    	self.__ip['dsf']	= (  int(bs[1].encode( 'hex'),16))
-    	self.__ip['len']	= (( int(bs[2].encode( 'hex'),16)) << 8) + (int(bs[3].encode('hex'),16))
-    	self.__ip['id']		= (( int(bs[4].encode( 'hex'),16)) << 8) + (int(bs[5].encode('hex'),16))
-    	self.__ip['flags']	= (( int(bs[6].encode( 'hex'),16)) & 0xe0)
-    	self.__ip['frag-off']	= (((int(bs[6].encode( 'hex'),16)) << 8) & 0x1f) +(int(bs[7].encode('hex'),16))
-    	self.__ip['ttl']	= (  int(bs[8].encode( 'hex'),16))
-    	self.__ip['protocol']	= (  int(bs[9].encode( 'hex'),16))
-    	self.__ip['checksum']	= (( int(bs[10].encode('hex'),16)) << 8)  + (int(bs[11].encode('hex'),16))
-    	self.__ip['src']	= (( int(bs[12].encode('hex'),16)) << 24) + ((int(bs[13].encode('hex'),16)) << 16) +\
-    				  (( int(bs[14].encode('hex'),16)) << 8)  + (int(bs[15].encode('hex'),16))
-    	self.__ip['dst']	= (( int(bs[16].encode('hex'),16)) << 24) + ((int(bs[17].encode('hex'),16)) << 16) +\
-    				  (( int(bs[18].encode('hex'),16)) << 8)  + (int(bs[19].encode('hex'),16))
-    	self.__ip['c-checksum'] = self._checksum(bs[:10] + '\x00\x00' + bs[12:self.__ip['h-len']])
-    	self._formatted()
+        self.__binary = bs
 
-
-    def _formatted(self):
-    	if self.ISSTRING:
-    		return self.__sip
-    	#on the contrary, iterators seems handy here \o/
-    	
-    	for i,v in self.__ip.iteritems():
-    		# are we formatting protocol?
-    		if( i == 'protocol'):
-    			if v not in self.__protocols:
-    				self.__sip[i] = None
-    				continue
-    			self.__sip[i] = self.__protocols[v]
-    			continue
-    		elif ((i == 'src') or (i == 'dst')) and (self.__ip['version'] == 4):
-    			self.__sip[i]= ""
-
-    			for l in range(0,4)[::-1]:
-    				self.__sip[i] += str((self.__ip[i] >> l*8) & 0xff) + "."
-    			self.__sip[i] = self.__sip[i][:len(self.__sip[i])-1]
-
-    			continue
-    		else:
-    			self.__sip[i] = str(v)
-    	self.ISSTRING = True
-    	return self.__sip
-
+        #pcap files are in big endian, too bad that iterator doesn't seem handy
+        self.corrupted = False
+        #self.__ip['version'] 	= (  int(bs[0].encode( 'hex'),16) & 0xf0) >> 4
+        #self.__ip['dsf']	= (  int(bs[1].encode( 'hex'),16))
+        self.__ip['len']	= ((int(bs[2].encode('hex'), 16)) << 8) \
+                                + (int(bs[3].encode('hex'), 16))
+        #self.__ip['id']	= (( int(bs[4].encode( 'hex'),16)) << 8) + (int(bs[5].encode('hex'),16))
+        #self.__ip['flags']	= (( int(bs[6].encode( 'hex'),16)) & 0xe0)
+        #self.__ip['frag-off']	= (((int(bs[6].encode( 'hex'),16)) << 8) & 0x1f) +(int(bs[7].encode('hex'),16))
+        #self.__ip['ttl']	= (  int(bs[8].encode( 'hex'),16))
 
     def _checksum(self, ip):
-    	checksum = 0
-    	count	 = 0
-    	size = len(ip)
+        checksum = 0
+        count	 = 0
+        size = len(ip)
 
-    	while size > 1:
-    		checksum += int(( str("%02x" % (ord(ip[count]))) + str("%02x" % (ord(ip[count+1]))) ), 16)
-    		size -=2
-    		count +=2
-    	if size:
-    		checksum += ord(ip[count])
+        while size > 1:
+            checksum += int((str("%02x" % (ord(ip[count]))) +
+                        str("%02x" % (ord(ip[count + 1])))), 16)
+            size -= 2
+            count += 2
+        if size:
+            checksum += ord(ip[count])
 
-    	checksum = (checksum >> 16) + (checksum & 0xffff)
-    	checksum += (checksum >> 16)
+        checksum = (checksum >> 16) + (checksum & 0xffff)
+        checksum += (checksum >> 16)
 
-    	return (~checksum) & 0xffff
+        return (~checksum) & 0xffff
 
     def verify(self):
-    	if self.__ip['checksum'] != self.__ip['c-checksum']:
-    		self.corrupted = True
-    		return
+        b = self.__binary
+        if self.checksum != self._checksum(b[:10] + '\x00\x00' + b[12:self.length]):
+            self.corrupted = True
+            return
     ######################################################
     # Properties
     ######################################################
+
+    @property
+    def checksum(self):
+        bs = self.__binary
+        return ((int(bs[10].encode('hex'), 16)) << 8) + (int(bs[11].encode('hex'), 16))
+
     @property
     def raw(self):
-    	return self.__ip
+        return self.__ip
 
+    @property
+    def rawSrc(self):
+        return    ((int(self.__binary[12].encode('hex'), 16)) << 24) + ((int(self.__binary[13].encode('hex'), 16)) << 16) +\
+                    ((int(self.__binary[14].encode('hex'), 16)) << 8) + (int(self.__binary[15].encode('hex'), 16))
+
+    @rawSrc.setter
+    def rawSrc(self, value):
+        self.__binary = self.__binary[:12] + "".join([chr(int(j)) for j in value.split(".")]) + self.__binary[15:]
 
     @property
     def src(self):
-    	return self.__sip['src']
+        src = ""
+        for l in range(4)[::-1]:
+            src += str((self.rawSrc >> l * 8) & 0xff) + "."
+        src = src[:len(src) - 1]
+        return src
 
     @src.setter
     def src(self, val):
-    	if (type(val) != str):
-    		raise ValueError,"Malformed value"
-    	elif (len(val.split(".")) != 4):
-    		raise ValueError, "Malformed value"
-    	self.__sip['src'] =  val
-    	self.__ip['src'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
+        if (type(val) != str):
+            raise ValueError("Malformed value")
+        elif (len(val.split(".")) != 4):
+            raise ValueError("Malformed value")
+        self.rawSrc = val
 
+    @property
+    def rawDst(self):
+        return    ((int(self.__binary[16].encode('hex'), 16)) << 24) +\
+                    ((int(self.__binary[17].encode('hex'), 16)) << 16) +\
+                    ((int(self.__binary[18].encode('hex'), 16)) << 8) +\
+                    (int(self.__binary[19].encode('hex'), 16))
+
+    @rawDst.setter
+    def rawDst(self, value):
+        self.__binary = self.__binary[:16] + "".join([chr(int(j)) for j in value.split(".")]) + self.__binary[19:]
 
     @property
     def dst(self):
-    	return self.__sip['dst']
+        dst = ""
+        for l in range(4)[::-1]:
+            dst += str((self.rawDst >> l * 8) & 0xff) + "."
+        dst = dst[:len(dst) - 1]
+        return dst
 
     @dst.setter
     def dst(self, val):
-    	if (type(val) != str):
-    		raise ValueError,"Malformed value"
-    	elif (len(val.split(".")) != 4):
-    		raise ValueError,"Malformed value"
-    	self.__sip['dst'] = val
-    	self.__ip['dst'] = int("".join([chr(int(j)) for j in val.split(".")]).encode('hex'),16)
-    
+        if (type(val) != str):
+            raise ValueError("Malformed value")
+        elif (len(val.split(".")) != 4):
+            raise ValueError("Malformed value")
+        self.rawDst = val
 
     @property
     def nextProtocol(self):
-    	return self.__sip['protocol']
+        prot = (int(self.__binary[9].encode('hex'), 16))
+        if prot not in self.__protocols:
+            return None
+        return self.__protocols[prot]
 
     @nextProtocol.setter
-    def nextProtocol(self,val):
-    	if val not in self.__protocols.values():
-    		raise ValueError,"Invalid Protocol"
-    	self.__sip['protocol'] = val
-    	for k,v in self.__protocols.iteritems():
-    		if v == val:
-    			self.__ip['protocol'] = k
-
+    def nextProtocol(self, val):
+        if val not in self.__protocols.values():
+            raise ValueError("Invalid Protocol")
+        for k, v in self.__protocols.iteritems():
+            if v == val:
+                prot = k
+                self.__binary = self.__binary[:9] + chr(prot) + self.__binary[10:]
 
     @property
     def length(self):
-    	return self.__ip['h-len']
-
-    @length.setter
-    def length(self,value):
-    	if type(value) != int:
-    		raise ValueError, "Malformed Value"
-    	self.__ip['h-len'] = value
-    	self.__sip['h-len']  = str(value)
-
+        return (int(self.__binary[0].encode('hex'), 16) & 0x0f) * 4
 
     def getDstSrc(self):
-    	return self.__sip['dst'],self.__sip['src']
+        return self.dst, self.src
 
     def getRawDstSrc(self):
-    	return self.__ip['dst'],self.__ip['src']
+        return self.rawDst, self.rawSrc
