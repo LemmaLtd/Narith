@@ -70,3 +70,14 @@ class Packet(object):
     @property
     def size(self):
     	return self.__size
+
+    ####
+    # Has prefixed function
+    ###
+
+    def hasProt(self,prot_name):
+        from string import lower
+        for p in self:
+            if lower(type(p).__name__) == lower(prot_name):
+                return p
+        return False
