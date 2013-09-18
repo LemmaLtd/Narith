@@ -29,7 +29,7 @@ class Tcp(Protocol):
     __protocols = {
         21: Ftp.Ftp,
         20: Ftp.Ftp.FtpData,
-        80: Http.Http,
+#        80: Http.Http,
         }
 
     def __init__(self, b):
@@ -103,7 +103,7 @@ class Tcp(Protocol):
 
     @property
     def flags(self):
-        flags = int(b[12:14].encode('hex'), 16) & 0xfff
+        flags = int(self.__binary[12:14].encode('hex'), 16) & 0xfff
         if len(self._activeFlags) != 0:
             return self._activeFlags
         for k, v in self._flags.iteritems():

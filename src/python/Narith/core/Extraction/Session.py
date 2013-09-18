@@ -6,54 +6,10 @@ Date: 18th August 2013
 brief: Extracting sessions from pcap
 '''
 from Narith.core.Extraction.Domains import DomainExtractor
-
+from Narith.base.Stream.Session import Session
 class SessionExtractor(object):
 
-    class Session(object):
-        def __init__(self, ip, host, start, count, bs):
-            self.__ip = ip
-            self.__start = start
-            self.__end = start
-            self.__count = count
-            self.__bytes = bs
-            self.__host = host
-            self.packets = []
-        @property
-        def hostname(self):
-            return self.__host
-        @property
-        def host(self):
-            return self.__ip
-        @host.setter
-        def host(self,val):
-            self.__ip = val
-
-        @property
-        def start(self):
-            return self.__start
-
-        @property
-        def end(self):
-            return self.__end
-        @end.setter
-        def end(self,val):
-            self.__end = val
-        @property
-        def count(self):
-            return self.__count
-        @count.setter
-        def count(self,val):
-            self.__count = val
-
-        @property
-        def bytes(self):
-            return self.__bytes
-
-        @bytes.setter
-        def bytes(self, val):
-            self.__bytes = val
-
-    def __init__(self, packets,records, dom):
+    def __init__(self, packets,records, dom=None):
         if type(packets) != list and packets != [] and type(packets[0]) != Packet:
             raise TypeError,"Invalid arugment or list element type"
         self.__packets = packets
@@ -82,7 +38,7 @@ class SessionExtractor(object):
                 continue
             # is the local a source address?
             if ip.src == host:
-            
+
                 if self._alreadyRead(ip.dst):
                     if ip.dst in times:
                     #if ip.dst in times:
@@ -96,7 +52,11 @@ class SessionExtractor(object):
                 cur_host = self.__de.lookup(ip.dst)
                 self.__read.append(ip.dst)
                 start = record.time
-                times[ip.dst] = self.Session(ip.dst,cur_host,start,1,record.length)
+                times[ip.dst] = Session()
+                times[ip.dst].host = ip.dst
+                times[ip.dst].hostname = cur_host
+                times[ip.dst].start = start
+                times[ip.dst].bytes = record.length
                 times[ip.dst].packets.append(packet)
             # is the local a destination address?
             elif ip.dst == host:
@@ -111,12 +71,15 @@ class SessionExtractor(object):
                 cur_host = self.__de.lookup(ip.src)
                 self.__read.append(ip.src)
                 start = record.time
-                times[ip.src] = self.Session(ip.src,cur_host,start,1,record.length)
+                times[ip.src] = Session()
+                times[ip.src].host = ip.dst
+                times[ip.src].hostname = cur_host
+                times[ip.src].start = start
+                times[ip.src].bytes = record.length
                 times[ip.src].packets.append(packet)
             recidx +=1
 
         count = 0
-
         for ip, session in times.iteritems():
             count += session.count
         self.__processed = count
@@ -135,7 +98,7 @@ class SessionExtractor(object):
 
     def search(self, infix=''):
         sessions = []
-        
+
         for host,session in self.__sessions.iteritems():
             if infix in host or infix in session.hostname:
                 sessions.append(session)
