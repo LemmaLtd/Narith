@@ -27,7 +27,7 @@ class SessionExtractor(object):
         times = {}
         recidx = 0
         for packet in self.__packets:
-            ip = self._hasIP(packet)
+            ip = packet.hasProt('IP')
             try:
                 record = self.__records[recidx]
             except:
@@ -84,12 +84,6 @@ class SessionExtractor(object):
             count += session.count
         self.__processed = count
         self.__sessions = times
-
-    def _hasIP(self, packet):
-        for protocol in packet:
-            if type(protocol).__name__ == 'IP':
-                return protocol
-        return False
 
     def _alreadyRead(self, host):
         if host in self.__read:

@@ -12,7 +12,7 @@ class TcpSession(Session):
         self.packets = packets
         initseqs = []
         for packet in packets:
-            a = self._hasTcp(packet)
+            a = packet.hasProt('Tcp')
             if 'syn' in a.flags:
                 initseqs.append(a.sequence)
 
@@ -27,7 +27,7 @@ class TcpSession(Session):
             seqs.append(s & 0xfff00000)
         byseq = {}
         for packet in packets:
-            a = self._hasTcp(packet)
+            a = packet.hasProt('Tcp')
             if (a.sequence & 0xfff00000) in seqs:
                 if (a.sequence & 0xfff00000) not in byseq:
                     byseq[a.sequence & 0xfff00000] = []
@@ -58,10 +58,3 @@ class TcpSession(Session):
         for p in packets:
             c.append(cls(p))
         return c
-
-    def _hasTcp(self, packet):
-        for p in packet:
-            if type(p).__name__ == 'Tcp':
-                return p
-        return False
-
