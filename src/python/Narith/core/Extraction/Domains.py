@@ -23,7 +23,7 @@ class DomainExtractor(object):
             return self.__domains
 
         for packet in self.__packets:
-            dns = self._hasDns(packet)
+            dns = packet.hasProt('Dns')
             if not dns:
                 continue
             try:
@@ -39,7 +39,7 @@ class DomainExtractor(object):
                 pass
         self.__domains = qa
         return qa
-                
+
     def wwwExtract(self):
         qa = []
         for domains in self.__domains:
@@ -49,13 +49,6 @@ class DomainExtractor(object):
                     qa.append(domip)
         return qa
 
-    def _hasDns(self, packet):
-        for protocol in packet:
-            if type(protocol).__name__ == 'Dns':
-                return protocol
-            else:
-                continue
-        return False        
     def _isIP(self,ip):
         if type(ip) != str:
             return False
