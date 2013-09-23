@@ -13,7 +13,7 @@ class TcpSession(Session):
         initseqs = []
         for packet in packets:
             a = packet.hasProt('Tcp')
-            if 'syn' in a.flags:
+            if 'syn' in a.flags and len(a.flags == 1):
                 initseqs.append(a.sequence)
 
         self.sequences = initseqs

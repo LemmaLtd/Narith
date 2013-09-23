@@ -120,6 +120,8 @@ class Classifier(object):
             while parent != None or p != '':
                 packet.attach(parent)
                 prot = parent.nextProtocol
+                if p == '':
+                    break
                 if prot == None:
                     p = p[parent.length:]
                     break
