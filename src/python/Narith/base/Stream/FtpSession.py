@@ -8,52 +8,25 @@ Review: Saad Talaat
 brief: implementation for a Ftp sesssion
 '''
 
-from Narith.base.Stream.Session import Session
+from Narith.base.Stream.TcpSession import TcpSession
 
-class FtpSession(Session):
-
+class FtpSession(TcpSession):
     def __init__(self, session):
-        self.__session = session
-        self.seqs = []
+        self.base_session = session
+        self.packets = session.packets
+        self.sessions = session.sessions
+        data = []
+        for packets in sessions.itervalues():
+            data.append([])
+            for packet in packets:
+                if packet.hasProt('Ftp'):
+                    data[len(data)-1].append(packet)
+        self.data = data
 
-    def check(self):
-        ftps = self.__ftps()
-        sessions = {}
-        packets = []
+    @classmethod
+    def fromTcpSession(cls, session):
+        for packet in session.packet:
+            if packet.hasProt('Tcp'):
+                if packet.size > 3 and packet.hasProt('Ftp'):
+                    return cls(session)
 
-        for ftp in ftps:
-            prot = ftp.hasProt('Ftp')
-            if prot:
-                src = self.__TCP(prot).src
-                dst = self.__TCP(prot).dst
-                port = (src if src > 1024 else dst)
-
-                if port not in sessions:
-                    sessions[port] = []
-                sessions[port].append(ftp)
-
-        final = []
-        for ses in sessions.itervalues():
-            packets.append(ses)
-        return
-
-
-    def __IP(self, packet):
-        return packet.prev.prev
-
-    def __TCP(self, packet):
-        return packet.prev
-
-    def __ftps(self):
-        ftps = []
-        packets = self.__session.packets
-        for packet in packets:
-            if self.__hasFtp(packet):
-                ftps.append(packet)
-        return ftps
-
-    def __hasFtp(self, packet):
-        for protocol in packet:
-            if type(protocol).__name__ == 'Ftp':
-                return protocol
-        return False
