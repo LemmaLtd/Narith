@@ -11,10 +11,13 @@ class TcpSession(Session):
         super(TcpSession, self).__init__()
         self.packets = packets
         initseqs = []
+        srcdst = []
         for packet in packets:
             a = packet.hasProt('Tcp')
-            if 'syn' in a.flags and len(a.flags) == 1:
+            if 'syn' in a.flags:
                 initseqs.append(a.sequence)
+                p = packet.hasProt('IP')
+                srcdst.append((p.src,p.dst))
 
         self.sequences = initseqs
         ###
@@ -22,16 +25,30 @@ class TcpSession(Session):
         # represent incoming and outgoing
         # which makes only two numbers
         ###
-        seqs = []
-        for s in initseqs:
-            seqs.append(s & 0xfff00000)
-        byseq = {}
+#        seqs = []
+#        for s in initseqs:
+#            seqs.append(s & 0xfff00000)
+#        byseq = {}
+#        for packet in packets:
+#            a = packet.hasProt('Tcp')
+#            p = packet.hasProt('IP')
+#            if (a.sequence & 0xfff00000) in seqs:
+#                if (a.sequence & 0xfff00000) not in byseq:
+#                    byseq[a.sequence & 0xfff00000] = []
+#                byseq[a.sequence & 0xfff00000].append(packet)
+
+        byip = {}
         for packet in packets:
             a = packet.hasProt('Tcp')
-            if (a.sequence & 0xfff00000) in seqs:
-                if (a.sequence & 0xfff00000) not in byseq:
-                    byseq[a.sequence & 0xfff00000] = []
-                byseq[a.sequence & 0xfff00000].append(packet)
+            p = packet.hasProt('IP')
+            if (p.src,p.dst) in srcdst:
+                if (p.src,p.dst) not in byip:
+                    byip[(p.src,p.dst)] = []
+                byip[(p.src, p.dst)].append(packet)
+        byseq = {}
+        for sequence in initseqs:
+            if sequence not in byseq:
+                byseq[sequence] = byip.values[initseqs.index(sequence)]
 
         self.sessions = byseq
 
