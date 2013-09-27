@@ -48,7 +48,7 @@ class TcpSession(Session):
         byseq = {}
         for sequence in initseqs:
             if sequence not in byseq:
-                byseq[sequence] = byip.values[initseqs.index(sequence)]
+                byseq[sequence] = byip[srcdst[initseqs.index(sequence)]]
 
         self.sessions = byseq
 

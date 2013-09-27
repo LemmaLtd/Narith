@@ -16,7 +16,7 @@ class FtpSession(TcpSession):
         self.packets = session.packets
         self.sessions = session.sessions
         data = []
-        for packets in sessions.itervalues():
+        for packets in self.sessions.itervalues():
             data.append([])
             for packet in packets:
                 if packet.hasProt('Ftp'):
@@ -25,7 +25,7 @@ class FtpSession(TcpSession):
 
     @classmethod
     def fromTcpSession(cls, session):
-        for packet in session.packet:
+        for packet in session.packets:
             if packet.hasProt('Tcp'):
                 if packet.size > 3 and packet.hasProt('Ftp'):
                     return cls(session)
