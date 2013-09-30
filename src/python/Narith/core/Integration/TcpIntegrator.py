@@ -11,6 +11,41 @@ ProtData which hold same reference as original
 ProtData.
 '''
 from Narith.base.Fragmentation.TcpSegment import TcpSegment
+from Narith.base.Protocols.Tcp import Tcp
+
+
+class TcpIntegrator2(object):
+
+    def __init__(self, session):
+        if type(session) != list:
+            return
+        if type(session[0]).__name__ != 'Packet':
+            return
+
+        self.session = session
+        self.initseq = session[0].hasProt('Tcp').sequence
+
+    def integrate(self):
+        assembled = []
+        prev = None
+
+        for packet in self.session:
+            curseq = packet.hasProt('Tcp').sequence
+            if (curseq - self.initseq) > 1 and prev and prev.hasProt('ProtData') and packet.hasProt('ProtData'):
+                print packet.hasProt('ProtData')
+                print prev
+                prev_len = curseq - self.initseq - packet.hasProt('Tcp').length - 1
+                print "LENS",len(prev.hasProt('ProtData').data),prev_len
+                if len(assembled) == 0:
+                    assembled.append(prev.hasProt('ProtData').data)
+                    assembled.append(packet.hasProt('ProtData').data)
+                else:
+                    assembled.append(packet.hasProt('ProtData').data)
+            prev = packet
+
+        return assembled
+
+
 class TcpIntegrator(object):
 
     def __init__(self, packets):

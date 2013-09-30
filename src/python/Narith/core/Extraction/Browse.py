@@ -25,9 +25,9 @@ class BrowseExtractor(object):
 				req['host'] = http.host
 				req['method'] = http.method
 				req['path'] = http.path
-				req['headers'] = http.headers
+				req['headers'] = http.requestHeaders
 				if http.method == "POST":
-					req['body'] = http.body
+					req['body'] = http.requestBody
 
 				self.rqs.append(req)
 
@@ -43,7 +43,7 @@ class BrowseExtractor(object):
 			elif http.type == 'response':
 				res = {}
 				res['status'] = http.status
-				res['headers'] = http.headers
+				res['headers'] = http.responseHeaders
 
 				self.hosts.append({'response': http.status})
 				

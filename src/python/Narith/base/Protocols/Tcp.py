@@ -29,7 +29,7 @@ class Tcp(Protocol):
     __protocols = {
         21: Ftp.Ftp,
         20: Ftp.Ftp.FtpData,
-#        80: Http.Http,
+       	80: Http.Http,
         }
 
     def __init__(self, b):

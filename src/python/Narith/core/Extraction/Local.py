@@ -14,27 +14,17 @@ class LocalInfo(object):
         #self.__dom = DomainExtractor(packets)
         self.__dom = dom
         self.__info = dict()
-        
+
         self.__info['addr']     = self.__dom.host
         self.__info['dns']    = self.__dom.servers
         for packet in packets:
-            prot = self._hasIP(packet)
+            prot = packet.hasProt('IP')
             if prot:
                 if self._isLocal(prot):
                     self.__info['mac'] = packet.get(0).src
                     break
                 else:
                     self.__info['mac'] = packet.get(0).dst
-
-    def _hasIP(self, packet):
-        b =[type(x).__name__ == 'IP' for x in packet]
-        try:
-            index = b.index(True)
-        except:
-            return False
-        if index >= 0 :
-            return packet.get(index)
-        return False
 
     def _isLocal(self, prot):
         return prot.src == self.__info['addr']
