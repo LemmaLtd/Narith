@@ -12,12 +12,12 @@ class Http(Protocol):
 		# self.type = None
 		self.__verbs = ['OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT']
 
-		#truncated means it's a Continuation or non-HTTP traffic
-		self.truncated = 0
 
-		if 'HTTP' not in b:
-			self.truncated = 1
-			return
+	@property
+	def data(self):
+		if 'HTTP' not in self._binary:
+			return self._binary
+		return False
 
 	@property
 	def length(self):
@@ -25,6 +25,8 @@ class Http(Protocol):
 
 	@property
 	def type(self):
+		if 'HTTP' not in self._binary:
+			return 'data'
 		verbPart = self._binary.split('HTTP')[0]
 		for v in self.__verbs:
 			if v in verbPart:
