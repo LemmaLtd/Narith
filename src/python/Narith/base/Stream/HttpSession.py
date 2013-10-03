@@ -21,7 +21,7 @@ class HttpSession(TcpSession):
 			for p in sessionPackets:
 				if p.hasProt('Http'):
 					self.nestedPackets[-1].append(p)
-					
+
 		self.data = []
 
 		for sessionPackets in self.nestedPackets:
@@ -34,7 +34,10 @@ class HttpSession(TcpSession):
 						self.data[-1].append(pData)
 
 	@classmethod
-	def fromHttpSession(HttpSessionClass, session):
+	def fromTcpSession(HttpSessionClass, session):
 		for packet in session.packets:
-			if packet.hasProt('Http'):
-				return HttpSessionClass(session)
+            if packet.hasProt('Tcp'):
+			    if packet.size > 3 and packet.hasProt('Http'):
+				    return HttpSessionClass(session)
+
+
