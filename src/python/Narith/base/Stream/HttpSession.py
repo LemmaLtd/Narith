@@ -8,7 +8,7 @@ brief: Http session implementation
 '''
 
 from Narith.base.Stream.TcpSession import TcpSession
-
+import time
 class HttpSession(TcpSession):
 
 	def __init__(self, session):
@@ -27,8 +27,14 @@ class HttpSession(TcpSession):
 		for sessionPackets in self.nestedPackets:
 			self.data.append([])
 			for packet in sessionPackets:
-				pData = packet.hasProt('ProtData')
+				pData = packet.hasProt('Http')
 				if pData:
-					self.data[-1].append(pData.data)
+					pData = pData.data
+					if pData:
+						self.data[-1].append(pData)
 
-
+	@classmethod
+	def fromHttpSession(HttpSessionClass, session):
+		for packet in session.packets:
+			if packet.hasProt('Http'):
+				return HttpSessionClass(session)
