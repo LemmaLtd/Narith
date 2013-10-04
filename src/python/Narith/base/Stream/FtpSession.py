@@ -27,8 +27,11 @@ class FtpSession(TcpSession):
             for packet in packets:
                 ftp = packet.hasProt('Ftp')
                 if ftp:
-                    if ftp.data:
-                        dataList.append(ftp.FtpData)
+                    exit(0)
+                    if ftp.type == 'data':
+                        # check with base sequence
+                        # move loop to up
+                        dataList.append(ftp.data)
         self.data = dataList
 
     @classmethod
