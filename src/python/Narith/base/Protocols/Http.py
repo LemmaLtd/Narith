@@ -17,6 +17,9 @@ class Http(Protocol):
 	def data(self):
 		if 'HTTP' not in self._binary:
 			return self._binary
+        elif 'HTTP' in self._binary:
+            return self.responesBody
+
 		return False
 
 	@property
@@ -89,7 +92,7 @@ class Http(Protocol):
 	@property
 	def status(self):
 		b = self._binary
-		return (b.split('HTTP')[1].split(' ')[1], ' '.join(b.split('HTTP')[1].split(' ')[2:]).split('\r')[0])    	
+		return (b.split('HTTP')[1].split(' ')[1], ' '.join(b.split('HTTP')[1].split(' ')[2:]).split('\r')[0])
 
 	@property
 	def responseHeaders(self):
@@ -108,3 +111,9 @@ class Http(Protocol):
 			i = i + 2
 
 		return headers
+    @property
+    def responseBody(self):
+        b = self._binary
+        status = self.status
+        if status == '200':
+            return '\r\n\r\n'.join(b.split('\r\n\r\n')[1:])
