@@ -49,7 +49,8 @@ class SessionExtractor(object):
                     recidx += 1
                     continue
 
-                cur_host = self.__de.lookup(ip.dst)
+                cur_host = ip.dst
+#self.__de.lookup(ip.dst)
                 self.__read.append(ip.dst)
                 start = record.time
                 times[ip.dst] = Session()
@@ -68,7 +69,8 @@ class SessionExtractor(object):
                         times[ip.src].packets.append(packet)
                     recidx +=1
                     continue
-                cur_host = self.__de.lookup(ip.src)
+                cur_host = ip.src
+#self.__de.lookup(ip.src)
                 self.__read.append(ip.src)
                 start = record.time
                 times[ip.src] = Session()

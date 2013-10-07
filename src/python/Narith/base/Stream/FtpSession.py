@@ -20,6 +20,8 @@ class FtpSession(TcpSession):
         for packets in self.sessions.itervalues():
             data.append([])
             for packet in packets:
+                if 'syn' in packet.hasProt('Tcp').flags or 'fin' in packet.hasProt('Tcp').flags:
+                    continue
                 if packet.hasProt('Ftp'):
                     data[len(data)-1].append(packet)
 
@@ -27,7 +29,6 @@ class FtpSession(TcpSession):
             for packet in packets:
                 ftp = packet.hasProt('Ftp')
                 if ftp:
-                    exit(0)
                     if ftp.type == 'data':
                         # check with base sequence
                         # move loop to up
