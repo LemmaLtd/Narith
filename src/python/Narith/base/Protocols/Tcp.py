@@ -51,7 +51,13 @@ class Tcp(Protocol):
         #self._tcp['pad'] = b[18:18+remaining]
         #self._tcp['c-checksum'] = self._checksum(b[:16] + '\x00\x00' + b[18:])
         length = (int(b[12:13].encode('hex'), 16) >> 4) * 4
+        self.b = b
         self.__binary = b[:length]
+        if self.b[length:].count('\x00') == len(self.b[length:]):
+            self.trailer = self.b[length:]
+        else:
+            self.trailer = ''
+
 
     def _checksum(self, tcp):
         checksum = 0
@@ -117,8 +123,7 @@ class Tcp(Protocol):
 
     @property
     def nextProtocol(self):
-        trailer = map(lambda x: x == '\x00', self.__binary[self.length:])
-        if trailer.count(True) == len(trailer) and len(trailer) != 0:
+        if self.trailer:
             return None
 
         if(self.src < 1024):
@@ -134,7 +139,7 @@ class Tcp(Protocol):
 
     @property
     def length(self):
-        return (int(self.__binary[12:13].encode('hex'), 16) >> 4) * 4
+        return len(self.trailer) + (int(self.__binary[12:13].encode('hex'), 16) >> 4) * 4
 
     @property
     def iscorrupted(self):
