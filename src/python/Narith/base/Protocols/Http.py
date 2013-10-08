@@ -16,9 +16,9 @@ class Http(Protocol):
     @property
     def data(self):
         if self._binary and 'HTTP' not in self._binary:
-            return self.binary
+            return self._binary
         elif self._binary and 'HTTP' not in self._binary:
-            return 'rnrn'.join(self._binary.split('\r\n\r\n')[1:])
+            return '\r\n\r\n'.join(self._binary.split('\r\n\r\n')[1:])
         return False
 
     @property
