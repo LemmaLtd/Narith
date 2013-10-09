@@ -8,15 +8,22 @@ brief: Extracting Files
 from Narith.core.Integration.TcpIntegrator import TcpIntegrator
 from Narith.base.Stream.TcpSession import TcpSession
 from Narith.base.Stream.FtpSession import FtpSession
+from Narith.base.Stream.HttpSession import HttpSession
+from Narith.base.Encoders.Gzip import GzipDecoder
 import os,datetime
 
 class FileExtractor(object):
+    __decoder = {
+            None    : lambda x: x,
+            'gzip'  : GzipDecoder.decodeRaw,
+                }
 
-    def __init__(self, d="Data/Ftp/"):
+    def __init__(self, d="Data/"):
         self.d = d
-        self.d = self.d + datetime.datetime.now().strftime("%T %d-%m-%y/")
+        self.d = self.d + datetime.datetime.now().strftime("%H %d-%m-%y/")
         try:
-            os.makedirs(self.d)
+            os.makedirs(self.d+"Ftp/")
+            os.makedirs(self.d+"Http/")
         except:
             pass
         return
@@ -28,13 +35,34 @@ class FileExtractor(object):
             f = [FtpSession.fromTcpSession(tcp_session) for tcp_session in s]
             #print "FTP",sum(map(lambda x: x != None, f))
             for ftpsession in f:
-                if not ftpsession:
+                if not ftpsession or not ftpsession.data:
                     continue
-                fd = open(self.d+str(id(ftpsession)),'w')
+                fd = open(self.d+"Ftp/"+str(id(ftpsession)),'w')
                 fd.write("".join(ftpsession.data))
                 fd.close()
                 written +=1
-        print "Written:",written,"Files."
+        return written
+    def extractHttp(self, sessions):
+        written = 0
+        for ip_session in sessions:
+            s = TcpSession.fromSession(ip_session)
+            h = [HttpSession.fromTcpSession(tcp_session) for tcp_session in s]
+            for httpsession in h:
+                if not httpsession or not httpsession.data2:
+                    continue
+                for data in httpsession.data2:
+                    if not data:
+                        continue
+                    fd = open(self.d+"Http/"+str(id(httpsession)),'w')
+                    try:
+                        decoder = self.__decoder[httpsession.encoding2[httpsession.data2.index(data)]]
+                        fd.write(decoder("".join(data)))
+                    except Exception as e:
+                        #print data
+                        pass
+                    fd.close()
+                    written +=1
+        return written
 '''
 class FileExtractor(object):
    def __init__(self, packets):

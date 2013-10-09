@@ -9,6 +9,7 @@ class Http(Protocol):
         self._binary = b
         self._length = len(b)
         self.corrupted = 0
+        self.b = b
         # self.type = None
         self.__verbs = ['OPTIONS', 'GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'TRACE', 'CONNECT']
 
@@ -17,7 +18,7 @@ class Http(Protocol):
     def data(self):
         if self._binary and 'HTTP' not in self._binary:
             return self._binary
-        elif self._binary and 'HTTP' not in self._binary:
+        elif self._binary and 'HTTP' in self._binary:
             return '\r\n\r\n'.join(self._binary.split('\r\n\r\n')[1:])
         return False
 
@@ -35,7 +36,9 @@ class Http(Protocol):
                 return 'request'
         return 'response'
 
-
+    @property
+    def header(self):
+        return self._binary.split('\r\n\r\n')[0]
     #######################
     # Request properties
     #######################
