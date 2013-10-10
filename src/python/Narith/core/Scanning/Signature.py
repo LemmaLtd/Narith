@@ -5,8 +5,59 @@ File:   Signature.py
 brief:  Signature based scan & detection
 '''
 import os, sqlite3
+import yara
+'''
+Yara based signature scanner:
+    This scanner only scans files. Scanning packets
+    will cause huge contention since yara scanner
+    is uses on thread-pool.
+'''
+class YaraScanner(object):
+
+    def __init__(self,data_dir="Data/"):
+        self.rulefiles  = []
+        self.files      = []
+        database_dir    = "Database/"
+
+        for root,subfolders, files in os.walk(database_dir):
+            for f in files:
+                if "yara" in f[-4:]:
+                    self.rulefiles.append(root+"/"+f)
+        for root,subfolder,files in os.walk(data_dir):
+            for f in files:
+                self.files.append(root+"/"+f)
+
+    def scan(self):
+        data_matches = []
+        matches = []
+        for f in self.files:
+            fd = open(f,'r')
+            data_matches = self._match(fd.read())
+            if not data_matches:
+                fd.close()
+                continue
+            matches += data_matches
+            fd.close()
+        return matches
+
+    def _match(self,data):
+        matches = []
+        for db in self.rulefiles:
+            rules = yara.compile(db)
+            match = rules.match_data(data)
+            if not match:
+                continue
+            matches.append(rules.match_data(data))
+        return matches
+
+    def close(self):
+        del self.files
+        del self.rulefiles
 
 
+'''
+Basic signature finder
+'''
 class SignatureScanner(object):
 
     # Map of tables of dbs
@@ -27,6 +78,9 @@ class SignatureScanner(object):
             for f in files:
                 if "db" in f[-2:]:
                     self.signdbs.append(root+"/"+f)
+        if not filesflag:
+            return
+
         for root, subfolder, files in os.walk(data_dir):
             for f in files:
                 self.files.append(root+"/"+f)
@@ -40,13 +94,13 @@ class SignatureScanner(object):
                 'files'   : []
                 }
         for packet in self.packets:
-            continue
             i+=1
             pack_matches = self._match(packet)
             if packmatches:
                 for match in pack_matches:
                     matches['packets'].append((i,packet,match))
-
+        if not self.filesflag:
+            return matches
         for f in self.files:
             fd = open(f,'r')
             dat_matches = self._match(fd.read())
@@ -70,3 +124,9 @@ class SignatureScanner(object):
             except KeyError:
                 pass
         return matches
+
+    def close(self):
+        del self.packets
+        del self.filesflag
+        del self.signdbs
+        del self.files
