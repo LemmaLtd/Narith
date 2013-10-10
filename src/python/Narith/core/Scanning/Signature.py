@@ -5,7 +5,6 @@ File:   Signature.py
 brief:  Signature based scan & detection
 '''
 import os, sqlite3
-import yara
 '''
 Yara based signature scanner:
     This scanner only scans files. Scanning packets
@@ -13,7 +12,12 @@ Yara based signature scanner:
     is uses on thread-pool.
 '''
 class YaraScanner(object):
-
+    try:
+        import yaraa
+    except ImportError as e:
+        print "yara package is not installed"
+        print "using Thirdparty yara package"
+        from ThirdParty import yara
     def __init__(self,data_dir="Data/"):
         self.rulefiles  = []
         self.files      = []
