@@ -97,5 +97,4 @@ class HttpSession(TcpSession):
             if packet.hasProt('Tcp'):
                 if packet.size > 3 and packet.hasProt('Http'):
                     return HttpSessionClass(session)
-
-
+                    
