@@ -4,6 +4,7 @@ class HttpRequest(object):
 	def __init__(self, requestData):
 		self._data = requestData
 		self._type = self._data.split("\r\n")[0].split(' ')[0]
+		self._postArgs = {}
 
 		header = self._data.split('\r\n\r\n')[0].replace('\r\n', ': ').split(': ')[1:]
 		self._headers = {}
@@ -18,6 +19,22 @@ class HttpRequest(object):
 
 		self._host = self.getField("Host")
 		self._uri = " ".join(self._data.split("\r\n")[0].split(' ')[1:-1])
+		self._uriArgs = {}
+
+		if len(self.uri.split("?")) == 2:
+			for arg in self.uri.split("?")[1].split("&"):
+				try :
+					self._uriArgs[arg.split("=")[0]] = arg.split("=")[1]
+				except:
+					self._uriArgs[arg.split("=")[0]] = None
+
+		if self._type == 'POST' and self.bodyLength > 0 and self.getField("Content-Type") and "x-www-form-urlencoded" in self.getField("Content-Type"):
+			for arg in self.body.split("&"):
+				try:
+					self._postArgs[arg.split("=")[0]] = arg.split("=")[1]
+				except:
+					self._postArgs[arg.split("=")[0]] = None
+
 
 	@property
 	def length(self):
@@ -31,14 +48,16 @@ class HttpRequest(object):
 
 	@property
 	def body(self):
-		parts = '\r\n\r\n'.join(self._data.split('\r\n\r\n'))
+		parts = '\r\n\r\n'.join(self._data.split('\r\n\r\n')[1:])
 		if len(parts) > 1:
 			return parts[1:]
 		return None
 	
 	@property  
 	def bodyLength(self):
-		return len(self.body)
+		if self.body:
+			return len(self.body)
+		return 0
 
 	@property  
 	def fields(self):
@@ -80,3 +99,14 @@ class HttpRequest(object):
 	@property
 	def type(self):
 		return self._type
+
+	@property
+	def postArgs(self):
+		if self._type == 'POST':
+			return self._postArgs
+		return None
+
+	@property
+	def urlArgs(self):
+		return self._uriArgs
+
