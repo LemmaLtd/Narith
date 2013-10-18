@@ -36,19 +36,21 @@ class HttpResponse(object):
 		try:
 			return self._headers[filter]
 		except:
-			return False
+			return None
 
 	@property
 	def body(self):
 		if self._status == '200' or self._status == '302':
-			parts = '\r\n\r\n'.join(self._data.split('\r\n\r\n'))
+			parts = '\r\n\r\n'.join(self._data.split('\r\n\r\n')[1:])
 			if len(parts) > 1:
 				return parts[1:]
-		return False
+		return None
 	
 	@property  
 	def bodyLength(self):
-		return len(self.body)
+		if self.body:
+			return len(self.body)
+		return 0
 
 	@property  
 	def fields(self):
